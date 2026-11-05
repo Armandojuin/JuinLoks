@@ -2,6 +2,6 @@
 // Sustituye los dos valores entre comillas por los de tu proyecto
 // (Supabase → Project Settings → API). Deja las comillas.
 window.JUINLOKS_CONFIG = {
-  supabaseUrl: "TU_URL_DE_SUPABASE",   // ejemplo: "https://abcdefghijk.supabase.co"
-  supabaseKey: "TU_CLAVE_PUBLICA"      // la clave "anon public" (o "publishable")
+  supabaseUrl: "https://xvxrkmthkdvafuuofsyc.supabase.co/rest/v1/",   // ejemplo: "https://abcdefghijk.supabase.co"
+  supabaseKey: "sb_publishable_akCLbWsvyCxT5TJ0wyd77w_A8P_xwpq"      // la clave "anon public" (o "publishable")
 };
