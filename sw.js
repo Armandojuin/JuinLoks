@@ -1,8 +1,8 @@
 // JuinLoks · permite abrir la app sin conexión y la actualiza en segundo plano.
-const CACHE = 'juinloks-v1';
+const CACHE = 'juinloks-v2';
 const SHELL = [
   './', './index.html', './config.js', './manifest.webmanifest',
-  './vendor/supabase.js', './vendor/591.supabase.js',
+  './vendor/supabase.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
 
@@ -25,6 +25,18 @@ self.addEventListener('fetch', e => {
   // Los datos van siempre por la red: nunca se guardan en caché.
   if (url.hostname.endsWith('.supabase.co') || url.hostname.endsWith('.supabase.in')) return;
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  // La app y config.js: primero la red (para ver siempre la última versión); sin conexión, la copia guardada.
+  const isShell = url.origin === self.location.origin &&
+    (req.mode === 'navigate' || /\/(index\.html|config\.js)?$/.test(url.pathname) || url.pathname.endsWith('/config.js'));
+  if (isShell) {
+    e.respondWith(caches.open(CACHE).then(cache =>
+      fetch(req, { cache: 'no-store' }).then(res => {
+        if (res && res.ok) cache.put(req, res.clone());
+        return res;
+      }).catch(async () => (await cache.match(req, { ignoreSearch: true })) || cache.match('./index.html'))
+    ));
+    return;
+  }
   e.respondWith(caches.open(CACHE).then(async cache => {
     const hit = await cache.match(req, { ignoreSearch: url.origin === self.location.origin });
     const net = fetch(req).then(res => {

@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
-<script src="config.js"></script>
+<script src="config.js?v=2"></script>
 <script src="vendor/supabase.js"></script>
 <style>html,body{background:#000}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -364,7 +364,7 @@ async function authSubmit(kind){
 }
 async function connect(){
   loadLocal();renderDyn();
-  const url=CFG.supabaseUrl||'',key=CFG.supabaseKey||'';
+  const raw=String(CFG.supabaseUrl||'').trim(),m=raw.match(/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)/i),url=m?m[0]:raw.replace(/\/+$/,''),key=String(CFG.supabaseKey||'').trim();
   if(!/^https:\/\//.test(url)||!key||/^TU_/.test(key)){showAuth('setup');return}
   if(!window.supabase){setSync('offline','No se pudo cargar la librería de sincronización');return}
   sb=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'jl-auth'}});
