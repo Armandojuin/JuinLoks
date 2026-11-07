@@ -391,13 +391,17 @@ body.noscroll{overflow:hidden}
   .perfect{animation:jlglow 1.2s ease}
   @keyframes jlglow{0%{transform:scale(.97);opacity:0}40%{transform:scale(1.01);opacity:1}100%{transform:scale(1)}}
 }
+.brand.mini{display:inline-flex;align-items:center;gap:6px}
+.lmark{width:26px;height:24px;flex:none}
+.authlogo{display:grid;justify-items:center;gap:6px}
+.lmark.big{width:96px;height:86px}
 @media (prefers-reduced-motion:no-preference){.fill,.prog i{transition:width .3s ease}.tile,.panel{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}}
 </style>
 
 <div class="wrap">
   <header class="top">
     <div class="ttl"><div class="date" id="todayLabel"></div><h1 id="ptitle">Hoy</h1></div>
-    <div class="hdr-r"><span class="brand mini">Juin<b>Loks</b></span><div class="sync" id="sync"></div></div>
+    <div class="hdr-r"><span class="brand mini"><svg class="lmark" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gH" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c158ff"/><stop offset="1" stop-color="#5b2cff"/></linearGradient>  <mask id="mH" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" fill="#ffffff" mask="url(#mH)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gH)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><span>Juin<b>Loks</b></span></span><div class="sync" id="sync"></div></div>
   </header>
   <nav class="tabs" id="tabs" aria-label="Secciones">
     <button data-route="resumen">Hoy</button>
@@ -435,7 +439,7 @@ body.noscroll{overflow:hidden}
 <div class="sheet-bg" id="sheet" hidden><section class="sheet" role="dialog" aria-modal="true" aria-label="Añadir"><div class="grab" aria-hidden="true"></div><div id="sheetBody"></div></section></div>
 <div class="toast" id="toast" hidden></div>
 <div class="auth" id="auth" hidden><div class="authbox panel">
-  <h1 class="brand" style="text-align:center">Juin<b>Loks</b></h1>
+  <div class="authlogo"><svg class="lmark big" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gA" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c158ff"/><stop offset="1" stop-color="#5b2cff"/></linearGradient>  <mask id="mA" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" fill="#ffffff" mask="url(#mA)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gA)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><h1 class="brand" style="text-align:center;margin:0">Juin<b>Loks</b></h1></div>
   <div id="authSetup" hidden><p style="margin:0">Falta conectar tu base de datos. Abre el archivo <code>config.js</code> y escribe la URL y la clave pública de tu proyecto de Supabase, como explica la guía.</p></div>
   <form id="authForm" class="f" style="grid-template-columns:1fr" novalidate>
     <p class="muted" style="margin:0">Entra con tu cuenta para sincronizar tus datos entre dispositivos.</p>
@@ -1024,7 +1028,7 @@ dyn(){let cur=(S.config.accent||'#ffffff').toLowerCase();if(cur==='#0a0a0a')cur=
   <div class="panel"><div class="hd"><h2>Color de los detalles</h2><span class="muted">Botones, gráficos y marcas</span></div>
   <div class="swatches">${ACCENTS.map(([n,c])=>`<button class="sw ${cur===c?'on':''}" style="background:${c}" data-act="accent" data-c="${c}" aria-label="${n}" title="${n}"></button>`).join('')}
   <label class="fld" style="grid-auto-flow:column;align-items:center;gap:8px">Otro<input id="c-accent" type="color" value="${esc(cur)}" style="width:44px;height:34px;padding:2px"></label></div></div>`}};
-const ACCENTS=[['Blanco','#ffffff'],['Azul','#2f5bea'],['Rojo','#e0362c'],['Verde','#1f9d55'],['Naranja','#f07a1a'],['Violeta','#7b4fe0'],['Rosa','#e0447c'],['Turquesa','#0f9fa8'],['Amarillo','#e8b400']];
+const ACCENTS=[['Blanco','#ffffff'],['Morado','#8a3dff'],['Azul','#2f5bea'],['Rojo','#e0362c'],['Verde','#1f9d55'],['Naranja','#f07a1a'],['Violeta','#7b4fe0'],['Rosa','#e0447c'],['Turquesa','#0f9fa8'],['Amarillo','#e8b400']];
 function lum(hex){const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');if(!m)return 0;const n=parseInt(m[1],16);const ch=[n>>16,(n>>8)&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*ch[0]+.7152*ch[1]+.0722*ch[2]}
 function applyAccent(c){const r=document.documentElement.style;
   lsSet('jl-accent',c||'');
