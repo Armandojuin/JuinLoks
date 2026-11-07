@@ -1,5 +1,5 @@
 // JuinLoks · permite abrir la app sin conexión y la actualiza en segundo plano.
-const CACHE = 'juinloks-v3';
+const CACHE = 'juinloks-v4';
 const SHELL = [
   './', './index.html', './config.js', './manifest.webmanifest',
   './vendor/supabase.js',
