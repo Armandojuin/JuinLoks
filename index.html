@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<script>try{var t=localStorage.getItem("jl-theme");document.documentElement.setAttribute("data-jl",t==="light"||t==="auto"?t:"dark")}catch(e){document.documentElement.setAttribute("data-jl","dark")}</script>
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -14,7 +15,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script src="config.js?v=2"></script>
 <script src="vendor/supabase.js"></script>
-<style>html,body{background:#000}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>html,body{background:#000}html[data-jl="light"],html[data-jl="light"] body{background:#f4f4f6}@media (prefers-color-scheme:light){html[data-jl="auto"],html[data-jl="auto"] body{background:#f4f4f6}}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 <title>JuinLoks</title>
@@ -33,6 +34,8 @@
   --f-mono:"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --r:6px;
 }
+:root[data-jl="light"]{--bg:#f4f4f6; --surface:#ffffff; --surface2:#ffffff; --sunk:#ebebef; --ink:#0b0b0d; --muted:#66666e; --line:#e1e1e6; --accent:var(--ua,#0b0b0d); --on-accent:var(--uo,#ffffff); color-scheme:light;}
+@media (prefers-color-scheme:light){:root[data-jl="auto"]{--bg:#f4f4f6; --surface:#ffffff; --surface2:#ffffff; --sunk:#ebebef; --ink:#0b0b0d; --muted:#66666e; --line:#e1e1e6; --accent:var(--ua,#0b0b0d); --on-accent:var(--uo,#ffffff); color-scheme:light;}}
 .swatches{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .sw{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0;position:relative}
 .sw.on{outline:2px solid var(--ink);outline-offset:3px}
@@ -395,13 +398,40 @@ body.noscroll{overflow:hidden}
 .lmark{width:26px;height:24px;flex:none}
 .authlogo{display:grid;justify-items:center;gap:6px}
 .lmark.big{width:96px;height:86px}
+/* ---------- modo claro ---------- */
+html{background:var(--bg)}
+:root[data-jl="light"] .tile,:root[data-jl="light"] .panel,:root[data-jl="light"] .rings{box-shadow:0 1px 2px rgba(15,15,30,.05),0 12px 30px -18px rgba(15,15,30,.28)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .tile,:root[data-jl="auto"] .panel,:root[data-jl="auto"] .rings{box-shadow:0 1px 2px rgba(15,15,30,.05),0 12px 30px -18px rgba(15,15,30,.28)}}
+:root[data-jl="light"] .tile:hover,:root[data-jl="light"] .panel:hover{box-shadow:0 1px 2px rgba(15,15,30,.06),0 18px 40px -18px var(--glow)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .tile:hover,:root[data-jl="auto"] .panel:hover{box-shadow:0 1px 2px rgba(15,15,30,.06),0 18px 40px -18px var(--glow)}}
+:root[data-jl="light"] nav.tabs button,:root[data-jl="light"] .pn{box-shadow:0 1px 2px rgba(15,15,30,.06)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] nav.tabs button,:root[data-jl="auto"] .pn{box-shadow:0 1px 2px rgba(15,15,30,.06)}}
+:root[data-jl="light"] .tile::before,:root[data-jl="light"] .panel::before{opacity:.25}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .tile::before,:root[data-jl="auto"] .panel::before{opacity:.25}}
+:root[data-jl="light"] .sheet{box-shadow:0 -20px 60px -20px rgba(15,15,30,.35)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .sheet{box-shadow:0 -20px 60px -20px rgba(15,15,30,.35)}}
+:root[data-jl="light"] .sheet-bg.open{background:rgba(15,15,30,.35)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .sheet-bg.open{background:rgba(15,15,30,.35)}}
+:root[data-jl="light"] .budget.warn .bud-msg{color:#9a5b00}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .budget.warn .bud-msg{color:#9a5b00}}
+:root[data-jl="light"] .budget.over .bud-msg{color:#c0261c}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .budget.over .bud-msg{color:#c0261c}}
+:root[data-jl="light"] .bnav{background:color-mix(in srgb,var(--bg) 92%,transparent)}
+@media (prefers-color-scheme:light){:root[data-jl="auto"] .bnav{background:color-mix(in srgb,var(--bg) 92%,transparent)}}
+.themeseg{display:inline-flex;padding:3px;border-radius:99px;border:1px solid var(--line);background:var(--sunk);gap:2px;flex-wrap:wrap}
+.themeseg button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);font:600 .88rem var(--f-body);padding:8px 14px;border-radius:99px;cursor:pointer;min-height:38px}
+.themeseg button .ic{width:16px;height:16px}
+.themeseg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.thbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.thbtn .ic{width:17px;height:17px}
+.hdr-top{display:flex;align-items:center;gap:10px}
 @media (prefers-reduced-motion:no-preference){.fill,.prog i{transition:width .3s ease}.tile,.panel{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}}
 </style>
 
 <div class="wrap">
   <header class="top">
     <div class="ttl"><div class="date" id="todayLabel"></div><h1 id="ptitle">Hoy</h1></div>
-    <div class="hdr-r"><span class="brand mini"><svg class="lmark" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gH" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 55%,#ffffff)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>  <mask id="mH" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" fill="#ffffff" mask="url(#mH)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gH)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><span>Juin<b>Loks</b></span></span><div class="sync" id="sync"></div></div>
+    <div class="hdr-r"><div class="hdr-top"><button class="thbtn" id="thbtn" data-act="themeCycle" aria-label="Cambiar entre modo claro y oscuro"></button><span class="brand mini"><svg class="lmark" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gH" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 55%,#ffffff)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>  <mask id="mH" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" style="fill:var(--ink)" mask="url(#mH)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gH)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><span>Juin<b>Loks</b></span></span></div><div class="sync" id="sync"></div></div>
   </header>
   <nav class="tabs" id="tabs" aria-label="Secciones">
     <button data-route="resumen">Hoy</button>
@@ -439,7 +469,7 @@ body.noscroll{overflow:hidden}
 <div class="sheet-bg" id="sheet" hidden><section class="sheet" role="dialog" aria-modal="true" aria-label="Añadir"><div class="grab" aria-hidden="true"></div><div id="sheetBody"></div></section></div>
 <div class="toast" id="toast" hidden></div>
 <div class="auth" id="auth" hidden><div class="authbox panel">
-  <div class="authlogo"><svg class="lmark big" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gA" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 55%,#ffffff)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>  <mask id="mA" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" fill="#ffffff" mask="url(#mA)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gA)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><h1 class="brand" style="text-align:center;margin:0">Juin<b>Loks</b></h1></div>
+  <div class="authlogo"><svg class="lmark big" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gA" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 55%,#ffffff)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>  <mask id="mA" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" style="fill:var(--ink)" mask="url(#mA)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gA)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><h1 class="brand" style="text-align:center;margin:0">Juin<b>Loks</b></h1></div>
   <div id="authSetup" hidden><p style="margin:0">Falta conectar tu base de datos. Abre el archivo <code>config.js</code> y escribe la URL y la clave pública de tu proyecto de Supabase, como explica la guía.</p></div>
   <form id="authForm" class="f" style="grid-template-columns:1fr" novalidate>
     <p class="muted" style="margin:0">Entra con tu cuenta para sincronizar tus datos entre dispositivos.</p>
@@ -1025,10 +1055,26 @@ dyn(){let cur=(S.config.accent||'#ffffff').toLowerCase();if(cur==='#0a0a0a')cur=
   <p class="muted" style="margin:0">Además de la sincronización, puedes guardar tus datos en un archivo. También sirve para traer lo que anotaste en la versión anterior de JuinLoks.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="export">Descargar copia</button><label class="btn ghost" style="display:inline-flex;align-items:center" for="imp">Importar copia</label><input id="imp" type="file" accept="application/json,.json" hidden></div>
   ${pend?`<div class="notice" style="margin:0"><span>Esta copia tiene <strong>${pend._n} registros</strong>. Importarla <strong>reemplazará</strong> todos tus datos actuales.</span><button class="btn sm" data-act="impOk">Reemplazar mis datos</button><button class="btn sm ghost" data-act="impCancel">Cancelar</button></div>`:''}</div>
+  <div class="panel"><div class="hd"><h2>Apariencia</h2><span class="muted">También con el botón junto al logo</span></div>
+  <div class="themeseg" role="group" aria-label="Tema">${THEMES.map(([k,l])=>`<button data-act="theme" data-t="${k}" aria-pressed="${curTheme()===k}">${svg(k==='auto'?IC.autoT:k==='light'?IC.sun:IC.moonS)}${l}</button>`).join('')}</div>
+  <p class="muted" style="margin:0;font-size:.88rem">«Automático» usa el modo claro u oscuro de tu móvil u ordenador.</p></div>
   <div class="panel"><div class="hd"><h2>Color de los detalles</h2><span class="muted">Botones, gráficos y marcas</span></div>
   <div class="swatches">${ACCENTS.map(([n,c])=>`<button class="sw ${cur===c?'on':''}" style="background:${c}" data-act="accent" data-c="${c}" aria-label="${n}" title="${n}"></button>`).join('')}
   <label class="fld" style="grid-auto-flow:column;align-items:center;gap:8px">Otro<input id="c-accent" type="color" value="${esc(cur)}" style="width:44px;height:34px;padding:2px"></label></div></div>`}};
-const ACCENTS=[['Blanco','#ffffff'],['Azul','#2f5bea'],['Rojo','#e0362c'],['Verde','#1f9d55'],['Naranja','#f07a1a'],['Violeta','#7b4fe0'],['Rosa','#e0447c'],['Turquesa','#0f9fa8'],['Amarillo','#e8b400']];
+const THEMES=[['auto','Automático'],['light','Claro'],['dark','Oscuro']];
+IC.sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>';
+IC.moonS='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
+IC.autoT='<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5z" fill="currentColor"/>';
+const sysDark=()=>!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches);
+const curTheme=()=>{const t=S.config.theme||lsGet('jl-theme')||'dark';return ['auto','light','dark'].includes(t)?t:'dark'};
+const isDarkNow=()=>{const t=curTheme();return t==='dark'||(t==='auto'&&sysDark())};
+function applyTheme(t){document.documentElement.dataset.jl=t;lsSet('jl-theme',t);
+  const dark=t==='dark'||(t==='auto'&&sysDark());const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',dark?'#000000':'#f4f4f6');
+  const sb=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(sb)sb.setAttribute('content',dark?'black-translucent':'default');
+  const b=document.getElementById('thbtn');if(b){b.innerHTML=svg(t==='auto'?IC.autoT:dark?IC.moonS:IC.sun);b.title='Tema: '+(THEMES.find(x=>x[0]===t)||[0,''])[1]}}
+function saveTheme(t){applyTheme(t);put('config','main',{...S.config,theme:t});toast('Tema: '+THEMES.find(x=>x[0]===t)[1].toLowerCase())}
+try{window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>applyTheme(curTheme()))}catch(e){}
+const ACCENTS=[['Blanco / negro','#ffffff'],['Azul','#2f5bea'],['Rojo','#e0362c'],['Verde','#1f9d55'],['Naranja','#f07a1a'],['Violeta','#7b4fe0'],['Rosa','#e0447c'],['Turquesa','#0f9fa8'],['Amarillo','#e8b400']];
 function lum(hex){const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');if(!m)return 0;const n=parseInt(m[1],16);const ch=[n>>16,(n>>8)&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*ch[0]+.7152*ch[1]+.0722*ch[2]}
 function applyAccent(c){const r=document.documentElement.style;
   lsSet('jl-accent',c||'');
@@ -1041,6 +1087,7 @@ function fillSettings(){const c=cfg(),f=document.querySelector('form[data-form="
 /* ---------- render y rutas ---------- */
 function renderDyn(){
   if(S.config.accent!==renderDyn._a){renderDyn._a=S.config.accent;applyAccent(S.config.accent)}
+  if(curTheme()!==renderDyn._t){renderDyn._t=curTheme();applyTheme(renderDyn._t)}
   const pb=document.getElementById('pbar');pb.hidden=['ajustes','resumen','semana'].includes(ui.route);if(!pb.hidden)pb.innerHTML=pbar();
   const dyn=document.getElementById('dyn'),ae=document.activeElement;
   const keep=ae&&ae.id&&ae.tagName==='INPUT'&&dyn.contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart,e:ae.selectionEnd}:null;
@@ -1092,6 +1139,8 @@ document.addEventListener('click',e=>{
   else if(a==='impOk'){const d=ui.pending;COLS.forEach(c=>{const nw=d[c]&&typeof d[c]==='object'?d[c]:{};Object.keys(S[c]).forEach(id=>{if(!(id in nw))enqueue(c,id,{},true)});S[c]=nw;Object.entries(nw).forEach(([id,v])=>enqueue(c,id,v,false))});S.config=d.config&&typeof d.config==='object'?d.config:{};enqueue('config','main',S.config,false);ui.pending=null;save();renderDyn();const f=document.querySelector('form[data-form="settings"]');if(f){document.activeElement&&document.activeElement.blur();fillSettings()}toast('Copia importada')}
   else if(a==='impCancel'){ui.pending=null;renderDyn()}
   else if(a==='accent'){saveAccent(b.dataset.c)}
+  else if(a==='theme'){saveTheme(b.dataset.t)}
+  else if(a==='themeCycle'){saveTheme(isDarkNow()?'light':'dark')}
   else if(a==='mtype'){ui.moneyType=b.dataset.t;renderStatic()}
   else if(a==='prog'){const r=S.resources[b.dataset.id];if(!r)return;const p=Math.min(100,(+r.progress||0)+10);put('resources',b.dataset.id,{...r,progress:p,status:p>=100?'terminado':'en curso'})}
   else if(a==='clearEx'){COLS.forEach(c=>Object.entries(S[c]).forEach(([id,v])=>{if(v&&v.ex)del(c,id)}));toast('Ejemplos borrados')}
@@ -1137,6 +1186,7 @@ document.querySelectorAll('[data-ico]').forEach(el=>el.insertAdjacentHTML('after
 ui.anchor=today();
 {const m=lsGet('jl-pmode');if(m==='semana'||m==='mes')ui.pmode=m}
 {const a=lsGet('jl-accent');if(a)applyAccent(a)}
+applyTheme(curTheme());
 const td=new Date();document.getElementById('todayLabel').textContent=`${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][td.getDay()]}, ${td.getDate()} de ${MONTHS[td.getMonth()]} de ${td.getFullYear()}`;
 fromHash();
 connect();
