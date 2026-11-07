@@ -156,6 +156,17 @@ svg.chart rect{filter:drop-shadow(0 0 4px var(--glow-soft))}
 .chk:disabled{opacity:.25;cursor:default}
 .week.month{gap:3px}
 .week.month .chk{width:22px;height:22px}
+.task .t{font-weight:500}
+.task.done .t{text-decoration:line-through;color:var(--muted)}
+.tacts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;align-items:center;flex:none;max-width:55%}
+.pill.imp{color:var(--accent);background:transparent;border:1px solid var(--accent)}
+.pill.bad{border:1px solid var(--line)}
+.qadd{display:flex;gap:8px}
+.qadd input{flex:1;min-width:0}
+.fld.chkl{grid-auto-flow:column;justify-content:start;align-items:center;gap:8px;color:var(--ink);font-size:.95rem;padding-bottom:10px}
+.fld.chkl input{width:20px;height:20px;accent-color:var(--accent)}
+a.lnk{color:var(--accent);text-decoration:none}
+a.lnk:hover{text-decoration:underline}
 /* Pestañas: píldoras centradas con brillo al pasar el ratón */
 nav.tabs{justify-content:center;flex-wrap:wrap;gap:10px;margin-top:22px;border-bottom:0;overflow:visible;padding-block:4px}
 nav.tabs button{border:1px solid var(--line);border-radius:999px;padding:9px 20px;color:var(--muted);background:linear-gradient(160deg,var(--surface2),var(--surface));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 6px 16px -10px rgba(0,0,0,1);position:relative}
@@ -190,6 +201,7 @@ code{font-family:var(--f-mono);background:var(--sunk);padding:1px 6px;border-rad
   </header>
   <nav class="tabs" id="tabs" aria-label="Secciones">
     <button data-route="resumen">Resumen</button>
+    <button data-route="tareas">Tareas</button>
     <button data-route="habitos">Hábitos</button>
     <button data-route="sueno">Sueño</button>
     <button data-route="dinero">Dinero</button>
@@ -223,8 +235,8 @@ code{font-family:var(--f-mono);background:var(--sunk);padding:1px 6px;border-rad
 
 <script>
 (function(){
-const COLS=['habits','habitlog','sleep','money','learn','resources'];
-const S={habits:{},habitlog:{},sleep:{},money:{},learn:{},resources:{},config:{}};
+const COLS=['habits','habitlog','sleep','money','learn','resources','tasks'];
+const S={habits:{},habitlog:{},sleep:{},money:{},learn:{},resources:{},tasks:{},config:{}};
 const loaded=new Set();
 let db=null, mode='loading';
 const ui={route:'resumen',pmode:'mes',anchor:null,moneyType:'gasto',armed:null,pending:null};
@@ -429,6 +441,7 @@ V.resumen={form:()=>'',dyn(){
   const last=S.sleep[t]||S.sleep[addDays(t,-1)];
   const recent=studyRows(p).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
   const mov=mm.rows.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  const tk=tasksToday();
   return `<div class="grid">
     ${tile('Hábitos · '+pword(),hs.length?hst.pct+'%':'—',hs.length?`${hst.marks} de ${hst.possible} marcas · ${hst.perfect} días perfectos`:'Aún no tienes hábitos')}
     ${tile('Sueño medio · '+pword(),sl.n?fmtH(sl.avg):'—',sl.n?`${sl.n} noches · meta ${sl.g}h cumplida ${sl.hit} veces`:'Sin noches registradas')}
@@ -441,12 +454,68 @@ V.resumen={form:()=>'',dyn(){
       <div class="lbl">Última noche</div>
       <div>${last?`<span class="num">${last.bed} → ${last.wake}</span> · <strong>${fmtH(sleepHours(last.bed,last.wake))}</strong> · calidad ${last.quality}/5`:'<span class="muted">Sin registro de anoche.</span>'}</div>
     </div>
+    <div class="panel"><div class="hd"><h2>Tareas de hoy</h2><span class="muted">${tk.done.length}/${tk.done.length+tk.pend.length} hechas · <a href="#tareas" class="lnk">Ver todas</a></span></div>
+      <form class="qadd" data-form="taskq"><input id="tq-title" name="title" maxlength="120" placeholder="Añadir una tarea para hoy…" aria-label="Nueva tarea para hoy" required><button class="btn" type="submit">Añadir</button></form>
+      <div class="list">${tk.pend.length||tk.done.length?[...tk.pend,...tk.done].map(r=>taskRow(r,{compact:true})).join(''):'<p class="empty">No tienes tareas para hoy. Escribe una arriba.</p>'}</div>
+    </div>
+  </div>
+  <div class="two">
     <div class="panel"><div class="hd"><h2>Lo que aprendí ${pword()}</h2></div>
       <div class="list">${recent.length?recent.map(r=>`<div class="row"><div class="grow"><div class="t">${esc(r.topic)}${exTag(r)}</div><div class="s">${shortDate(r.date)} · ${esc(r.area||'General')} · ${fmtMin(+r.minutes||0)}${r.note?' — '+esc(r.note):''}</div></div></div>`).join(''):'<p class="empty">Sin sesiones de estudio en este periodo.</p>'}</div>
     </div>
+    <div class="panel"><div class="hd"><h2>Movimientos recientes</h2><span class="muted">${p.label}</span></div>
+      <div class="list">${mov.length?mov.map(moneyRow).join(''):'<p class="empty">Sin movimientos en este periodo.</p>'}</div></div>
+  </div>`;
+}};
+
+/* ---------- tareas ---------- */
+const tSort=(a,b)=>(b.imp?1:0)-(a.imp?1:0)||(a.created||'').localeCompare(b.created||'');
+const dayLabel=d=>{const t=today();if(d===t)return 'Hoy';if(d===addDays(t,1))return 'Mañana';const x=parse(d);return `${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][x.getDay()]} ${shortDate(d)}`};
+function tasksToday(){const t=today(),all=vals('tasks');
+  return{pend:all.filter(r=>!r.done&&r.date&&r.date<=t).sort((a,b)=>a.date.localeCompare(b.date)||tSort(a,b)),
+         done:all.filter(r=>r.done&&(r.doneAt===t||r.date===t)).sort((a,b)=>(a.doneAt||'').localeCompare(b.doneAt||''))}}
+function taskRow(r,o={}){const t=today(),over=!r.done&&r.date&&r.date<t,meta=[],acts=[];
+  if(over)meta.push(`<span class="pill bad">atrasada · ${shortDate(r.date)}</span>`);
+  if(r.imp)meta.push('<span class="pill imp">importante</span>');
+  if(!r.done){if(r.date!==t)acts.push(`<button class="btn sm ghost" data-act="tmove" data-to="hoy" data-id="${esc(r.id)}">Hoy</button>`);
+    if(!r.date||r.date<=t)acts.push(`<button class="btn sm ghost" data-act="tmove" data-to="manana" data-id="${esc(r.id)}">Mañana</button>`)}
+  return `<div class="row task${r.done?' done':''}"><button class="chk ${r.done?'on':''}" data-act="ttog" data-id="${esc(r.id)}" aria-label="${r.done?'Desmarcar':'Marcar como hecha'}: ${esc(r.title)}" aria-pressed="${!!r.done}"></button>
+    <div class="grow"><div class="t">${esc(r.title)}${exTag(r)}</div>${meta.length?`<div class="s">${meta.join(' ')}</div>`:''}</div>
+    ${o.compact?'':`<div class="tacts">${acts.join('')}${delBtn('tasks',r.id)}</div>`}</div>`}
+V.tareas={form:()=>`<div class="panel"><div class="hd"><h2>Nueva tarea</h2><span class="muted">Deja el día vacío para guardarla sin fecha</span></div>
+  <form class="f" data-form="task"><label class="fld wide">Tarea<input id="t-title" name="title" required maxlength="120" placeholder="Llamar al dentista"></label>
+  <label class="fld">Día<input id="t-date" name="date" type="date" value="${today()}"></label>
+  <label class="fld chkl"><input id="t-imp" name="imp" type="checkbox"><span>Importante</span></label>
+  <button class="btn" type="submit">Añadir tarea</button></form></div>`,
+dyn(){
+  const p=P(),t=today(),all=vals('tasks'),tk=tasksToday();
+  const over=tk.pend.filter(r=>r.date<t),pendT=tk.pend.filter(r=>r.date===t);
+  const upcoming=all.filter(r=>!r.done&&r.date&&r.date>t).sort((a,b)=>a.date.localeCompare(b.date)||tSort(a,b));
+  const nodate=all.filter(r=>!r.done&&!r.date).sort(tSort);
+  const doneP=all.filter(r=>r.done&&r.doneAt&&inP(r.doneAt,p));
+  const sched=all.filter(r=>r.date&&inP(r.date,p)&&r.date<=t),schedDone=sched.filter(r=>r.done).length;
+  const ds=datesOf(p),perDay=ds.map(d=>all.filter(r=>r.done&&r.doneAt===d).length),mx=Math.max(2,Math.ceil(Math.max(0,...perDay)/2)*2);
+  const groups={};upcoming.forEach(r=>{(groups[r.date]=groups[r.date]||[]).push(r)});
+  return `<div class="grid">
+    ${tile('Para hoy',`${tk.done.length}/${tk.done.length+tk.pend.length}`,over.length?`${over.length} ${over.length===1?'atrasada':'atrasadas'}`:'Nada atrasado')}
+    ${tile('Completadas · '+pword(),String(doneP.length),`${upcoming.length} ${upcoming.length===1?'programada':'programadas'} · ${nodate.length} sin fecha`)}
+    ${tile('Cumplimiento · '+pword(),sched.length?Math.round(schedDone/sched.length*100)+'%':'—',sched.length?`${schedDone} de ${sched.length} tareas con fecha`:'Sin tareas con fecha')}
   </div>
-  <div class="panel"><div class="hd"><h2>Movimientos recientes</h2><span class="muted">${p.label}</span></div>
-    <div class="list">${mov.length?mov.map(moneyRow).join(''):'<p class="empty">Sin movimientos en este periodo.</p>'}</div></div>`;
+  <div class="two">
+    <div class="panel"><div class="hd"><h2>Hoy</h2><span class="muted">${dayLabel(t)==='Hoy'?shortDate(t):''}</span></div>
+      ${over.length?`<div class="lbl">Atrasadas</div><div class="list">${over.map(r=>taskRow(r)).join('')}</div>`:''}
+      ${over.length?'<div class="lbl">Para hoy</div>':''}
+      <div class="list">${pendT.length?pendT.map(r=>taskRow(r)).join(''):`<p class="empty">${tk.done.length?'Has terminado todo lo de hoy.':'No tienes tareas para hoy.'}</p>`}</div>
+      ${tk.done.length?`<div class="lbl">Hechas hoy</div><div class="list">${tk.done.map(r=>taskRow(r)).join('')}</div>`:''}
+    </div>
+    <div class="panel"><div class="hd"><h2>Próximos días</h2></div>
+      ${upcoming.length?Object.entries(groups).map(([d,rs])=>`<div class="lbl">${dayLabel(d)}</div><div class="list">${rs.map(r=>taskRow(r)).join('')}</div>`).join(''):'<p class="empty">Nada programado para los próximos días.</p>'}
+      <div class="lbl">Sin fecha</div>
+      <div class="list">${nodate.length?nodate.map(r=>taskRow(r)).join(''):'<p class="empty">Ninguna tarea sin fecha.</p>'}</div>
+    </div>
+  </div>
+  <div class="panel"><div class="hd"><h2>Tareas completadas · ${p.label}</h2><span class="muted">${doneP.length} en total</span></div>
+    ${barChart({labels:ds.map(d=>p.days>7?String(parse(d).getDate()):DOW[parse(d).getDay()]+' '+parse(d).getDate()),values:perDay,max:mx,color:'--accent',fmt:v=>String(Math.round(v)),hi:ds.indexOf(t)})}</div>`;
 }};
 
 V.habitos={form:()=>`<div class="panel"><div class="hd"><h2>Nuevo hábito</h2></div>
@@ -607,7 +676,10 @@ function fillSettings(){const c=cfg(),f=document.querySelector('form[data-form="
 function renderDyn(){
   if(S.config.accent!==renderDyn._a){renderDyn._a=S.config.accent;applyAccent(S.config.accent)}
   const pb=document.getElementById('pbar');pb.hidden=ui.route==='ajustes';if(!pb.hidden)pb.innerHTML=pbar();
-  document.getElementById('dyn').innerHTML=V[ui.route].dyn();
+  const dyn=document.getElementById('dyn'),ae=document.activeElement;
+  const keep=ae&&ae.id&&ae.tagName==='INPUT'&&dyn.contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart,e:ae.selectionEnd}:null;
+  dyn.innerHTML=V[ui.route].dyn();
+  if(keep){const el=document.getElementById(keep.id);if(el){el.value=keep.v;el.focus();try{el.setSelectionRange(keep.s,keep.e)}catch(_){}}}
   const ex=COLS.some(c=>Object.values(S[c]).some(v=>v&&v.ex));
   document.getElementById('exNotice').hidden=!ex;
 }
@@ -625,6 +697,8 @@ document.addEventListener('click',e=>{
   const nb=e.target.closest('#tabs button');if(nb){if(location.hash!=='#'+nb.dataset.route)location.hash=nb.dataset.route;else go(nb.dataset.route);return}
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
   if(a==='tog')toggleHabit(b.dataset.d,b.dataset.h);
+  else if(a==='ttog'){const r=S.tasks[b.dataset.id];if(!r)return;const done=!r.done;put('tasks',b.dataset.id,{...r,done,doneAt:done?today():''});if(done)toast('Tarea hecha')}
+  else if(a==='tmove'){const r=S.tasks[b.dataset.id];if(!r)return;const d=b.dataset.to==='hoy'?today():addDays(today(),1);put('tasks',b.dataset.id,{...r,date:d});toast(b.dataset.to==='hoy'?'Movida a hoy':'Movida a mañana')}
   else if(a==='pmode'){ui.pmode=b.dataset.m;lsSet('jl-pmode',ui.pmode);renderDyn()}
   else if(a==='pstep'){ui.anchor=step(ui.anchor,+b.dataset.n);renderDyn()}
   else if(a==='pnow'){ui.anchor=today();renderDyn()}
@@ -649,7 +723,10 @@ document.addEventListener('submit',e=>{
   if(e.target.id==='authForm'){e.preventDefault();authSubmit('login');return}
   const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
   const v=Object.fromEntries(new FormData(f).entries()),k=f.dataset.form;
-  if(k==='habit'){put('habits',uid(),{name:v.name.trim(),goal:+v.goal||7,created:new Date().toISOString()});f.reset();toast('Hábito añadido')}
+  if(k==='task'||k==='taskq'){const title=(v.title||'').trim();if(!title){toast('Escribe la tarea');return}
+    const date=k==='taskq'?today():(v.date||'');f.title.value='';if(f.imp)f.imp.checked=false;
+    put('tasks',uid(),{title,date,imp:!!v.imp,done:false,doneAt:'',created:new Date().toISOString()});toast(date?'Tarea añadida para '+dayLabel(date).toLowerCase():'Tarea guardada sin fecha')}
+  else if(k==='habit'){put('habits',uid(),{name:v.name.trim(),goal:+v.goal||7,created:new Date().toISOString()});f.reset();toast('Hábito añadido')}
   else if(k==='sleep'){put('sleep',v.date,{bed:v.bed,wake:v.wake,quality:+v.quality,note:v.note.trim()});f.note.value='';showDate(v.date);toast(`Noche guardada: ${fmtH(sleepHours(v.bed,v.wake))}`)}
   else if(k==='money'){const amt=Math.round(+v.amount*100)/100;if(!(amt>0)){toast('Escribe una cantidad mayor que cero');return}
     put('money',uid(),{date:v.date,type:ui.moneyType,amount:amt,category:v.category,note:v.note.trim()});f.amount.value='';f.note.value='';showDate(v.date);toast((ui.moneyType==='gasto'?'Gasto':'Ingreso')+' guardado')}
