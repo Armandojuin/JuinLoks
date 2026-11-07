@@ -255,8 +255,9 @@ const DOW=['D','L','M','X','J','V','S'];
 const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const monthName=m=>{const[y,mm]=m.split('-').map(Number);return `${MONTHS[mm-1]} ${y}`};
 const shortDate=s=>{const d=parse(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`};
-const cfg=()=>({currency:'$',sleepGoal:8,budget:0,studyGoal:300,...S.config});
-const money=n=>{const c=cfg().currency;const v=Math.abs(n).toLocaleString('es',{minimumFractionDigits:0,maximumFractionDigits:2});return (n<0?'−':'')+c+v};
+const cfg=()=>{const c={sleepGoal:8,budget:0,studyGoal:300,...S.config};const cur=String(S.config.currency||'').trim();
+  c.currency=S.config.curV>=2&&cur?cur:(cur&&cur!=='$'?cur:'€');return c};
+const money=n=>{const c=cfg().currency;const v=Math.abs(n).toLocaleString('es-ES',{minimumFractionDigits:Number.isInteger(Math.round(Math.abs(n)*100)/100)?0:2,maximumFractionDigits:2,useGrouping:true});const pre=/^(\$|US\$|£|¥)$/.test(c);return (n<0?'−':'')+(pre?c+v:v+'\u00a0'+c)};
 const vals=col=>Object.entries(S[col]).map(([id,v])=>({id,...v}));
 const exTag=o=>o.ex?' <span class="pill ex">ejemplo</span>':'';
 const mondayOf=s=>{const d=parse(s);const k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return ymd(d)};
@@ -643,7 +644,7 @@ dyn(){
 }};
 
 V.ajustes={form:()=>`<div class="panel"><div class="hd"><h2>Ajustes</h2></div>
-  <form class="f" data-form="settings"><label class="fld">Símbolo de moneda<input id="c-cur" name="currency" maxlength="4"></label>
+  <form class="f" data-form="settings"><label class="fld">Símbolo de moneda<input id="c-cur" name="currency" maxlength="4" placeholder="€"></label>
   <label class="fld">Meta de sueño (horas)<input id="c-sleep" name="sleepGoal" type="number" step="0.5" min="4" max="12"></label>
   <label class="fld">Presupuesto mensual de gastos<input id="c-budget" name="budget" type="number" min="0" step="1"></label>
   <label class="fld">Meta de estudio semanal (min)<input id="c-study" name="studyGoal" type="number" min="0" step="15"></label>
@@ -732,7 +733,7 @@ document.addEventListener('submit',e=>{
     put('money',uid(),{date:v.date,type:ui.moneyType,amount:amt,category:v.category,note:v.note.trim()});f.amount.value='';f.note.value='';showDate(v.date);toast((ui.moneyType==='gasto'?'Gasto':'Ingreso')+' guardado')}
   else if(k==='learn'){put('learn',uid(),{date:v.date,minutes:+v.minutes,topic:v.topic.trim(),area:v.area.trim(),note:v.note.trim()});f.topic.value='';f.note.value='';showDate(v.date);toast('Sesión guardada')}
   else if(k==='resource'){put('resources',uid(),{title:v.title.trim(),kind:v.kind,area:v.area.trim(),status:'pendiente',progress:0});f.reset();toast('Recurso añadido')}
-  else if(k==='settings'){put('config','main',{...S.config,currency:v.currency.trim()||'$',sleepGoal:+v.sleepGoal||8,budget:+v.budget||0,studyGoal:+v.studyGoal||0});toast('Ajustes guardados')}
+  else if(k==='settings'){put('config','main',{...S.config,currency:v.currency.trim()||'€',curV:2,sleepGoal:+v.sleepGoal||8,budget:+v.budget||0,studyGoal:+v.studyGoal||0});toast('Ajustes guardados')}
 });
 
 ui.anchor=today();
