@@ -788,6 +788,22 @@ body.n-full-note .n-tb{justify-content:center}
 a.btn{text-decoration:none}
 .t-open{cursor:pointer;border-radius:8px}.t-open:hover .t{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}.t-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .agenda .btn .ic{width:15px;height:15px}
+.hoy-top{display:grid;gap:20px}@media (min-width:900px){.hoy-top:not(.solo){grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:stretch}.hoy-top .rings{align-content:center}}
+.hero{display:grid;align-content:start;gap:14px;padding:18px 20px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--accent) 16%,var(--surface)),var(--surface) 62%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 18px 40px -26px var(--glow)}
+.hero-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.hero h2{margin:0 0 4px;font:700 clamp(1.3rem,5.4vw,1.6rem)/1.15 var(--f-display);letter-spacing:-.025em}
+.hero p{margin:0;color:var(--muted);font-size:.95rem}
+.hero-pc{font:700 1.9rem/1 var(--f-display);letter-spacing:-.04em;color:var(--ink)}.hero-pc small{font-size:.55em;color:var(--muted);margin-left:1px}
+.dayprog{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}.dayprog i{display:block;height:100%;border-radius:inherit;background:var(--accent);box-shadow:0 0 12px var(--glow);transition:width .5s var(--e-out)}
+.next{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--surface2) 85%,transparent);border:1px solid var(--line)}
+.next.live{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 0 0 3px var(--glow-soft)}
+.nx-b{flex:1;min-width:0;display:grid;gap:1px;cursor:pointer}
+.nx-k{font:700 .66rem var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.nx-t{font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.nx-s{font-size:.84rem;color:var(--muted)}
+.next.idle .nx-b{cursor:default}.nx-ic{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:var(--glow-soft);color:var(--accent);flex:none}.nx-ic .ic{width:18px;height:18px}.next .btn .ic{width:15px;height:15px}
+.nx-more{font:600 .75rem var(--f-mono);color:var(--muted);padding:4px 8px;border-radius:99px;border:1px solid var(--line)}
+a.ring{color:inherit;text-decoration:none;border-radius:16px;padding:4px 2px;transition:transform .15s var(--e-out),background .2s}
+a.ring:hover{background:var(--glow-soft)}a.ring:active{transform:scale(.95)}a.ring:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .more-b{justify-self:start;margin-top:6px}
 #dyn>.panel,#dyn>.two>.panel{content-visibility:auto;contain-intrinsic-size:auto 420px}
 .ag-g{position:relative;display:grid;grid-template-columns:44px 1fr;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
@@ -1023,10 +1039,12 @@ window.addEventListener('online',()=>{pull().then(flush)});
 window.addEventListener('offline',()=>setSync('offline'));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){pull().then(flush)}});
 setInterval(()=>{if(document.visibilityState==='visible')pull().then(flush)},60000);
+setInterval(()=>{const ae=document.activeElement;if(document.visibilityState==='visible'&&ui.route==='resumen'&&!ui.sheet&&!(ae&&ae.matches&&ae.matches('input,textarea'))&&!document.querySelector('.ev.drag'))renderSoon()},60000);
 
 /* ---------- cálculos ---------- */
 const doneOn=(d,hid)=>!!(S.habitlog[d]&&S.habitlog[d].done&&S.habitlog[d].done[hid]);
-function streak(hid){let d=today();if(!doneOn(d,hid))d=addDays(d,-1);let n=0;while(doneOn(d,hid)&&n<2000){n++;d=addDays(d,-1)}return n}
+function streak(hid){const t0=today();if(streak._l!==S.habitlog||streak._d!==t0){streak._l=S.habitlog;streak._d=t0;streak._c=new Map()}if(streak._c.has(hid))return streak._c.get(hid);const v=streakRaw(hid);streak._c.set(hid,v);return v}
+function streakRaw(hid){let d=today();if(!doneOn(d,hid))d=addDays(d,-1);let n=0;while(doneOn(d,hid)&&n<2000){n++;d=addDays(d,-1)}return n}
 function toggleHabit(d,hid){if(d>today())return;const cur=S.habitlog[d]||{};const done={...(cur.done||{})};if(done[hid])delete done[hid];else done[hid]=true;put('habitlog',d,{...cur,done})}
 const habitsSorted=()=>vals('habits').sort((a,b)=>(a.created||'').localeCompare(b.created||''));
 function habitStats(p){const hs=habitsSorted(),el=elapsedOf(p);
@@ -1175,8 +1193,8 @@ function confetti(){sfx('celebrate');if(calm())return;try{navigator.vibrate&&nav
   const t0=performance.now();const tick=now=>{const k=(now-t0)/1600;x.clearRect(0,0,W,H);
     P.forEach(p=>{p.vy+=H*.0009;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;x.save();x.globalAlpha=Math.max(0,1-k*k);x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});
     if(k<1)requestAnimationFrame(tick);else c.remove()};requestAnimationFrame(tick)}
-function ring(p,val,label,sub,aria){const C=2*Math.PI*27,d=(C*Math.max(0,Math.min(1,p))).toFixed(1);
-  return `<div class="ring"><div class="rw"><svg viewBox="0 0 66 66" role="img" aria-label="${esc(aria)}"><circle cx="33" cy="33" r="27" class="rt"/>${+d>0?`<circle cx="33" cy="33" r="27" class="rp${entering()?' grow':''}" stroke-dasharray="${d} ${C.toFixed(1)}"/>`:''}</svg><span class="rv">${val}</span></div><span class="rl">${label}</span><span class="rs">${sub}</span></div>`}
+function ring(p,val,label,sub,aria,href){const C=2*Math.PI*27,d=(C*Math.max(0,Math.min(1,p))).toFixed(1);
+  return `<${href?'a':'div'} class="ring"${href?` href="${href}"`:''}><div class="rw"><svg viewBox="0 0 66 66" role="img" aria-label="${esc(aria)}"><circle cx="33" cy="33" r="27" class="rt"/>${+d>0?`<circle cx="33" cy="33" r="27" class="rp${entering()?' grow':''}" stroke-dasharray="${d} ${C.toFixed(1)}"/>`:''}</svg><span class="rv">${val}</span></div><span class="rl">${label}</span><span class="rs">${sub}</span></${href?'a':'div'}>`}
 const streakPill=(n,bump)=>`<span class="streak${n?'':' zero'}${bump?' bump':''}" title="Racha: ${dias(n)}">${svg(IC.flame)}${n}</span>`;
 function habitRow(h,d){const on=doneOn(d,h.id);
   const j=justDid('h',h.id+'|'+d);
@@ -1192,24 +1210,38 @@ function welcome(){return `<div class="panel welcome"><div class="hd"><h2>Bienve
   <a class="wstep" href="#ajustes">${svg(IC.dinero)}<span><strong>Pon tu presupuesto</strong><span>Cuánto quieres gastar al mes</span></span></a></div></div>`}
 
 /* ---------- Hoy ---------- */
+const TKSVG='<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.6l3.9 3.9L18.2 8" pathLength="20"/></svg>';
+function hoyHero(hs,hd,tk){const n=new Date(),h=n.getHours(),nowM=h*60+n.getMinutes(),t=today();
+  const hi=h<6?'Buenas noches':h<13?'Buenos días':h<21?'Buenas tardes':'Buenas noches';
+  const ph=hs.length-hd,pt=tk.pend.length,tot=hs.length+tk.done.length+tk.pend.length,dn=hd+tk.done.length,pc=tot?Math.round(dn/tot*100):0;
+  const parts=[];if(ph)parts.push(`${ph} ${ph===1?'hábito':'hábitos'}`);if(pt)parts.push(`${pt} ${pt===1?'tarea':'tareas'}`);
+  const sum=!tot?'Añade un hábito o una tarea para empezar el día.':parts.length?`Te ${ph+pt===1?'queda':'quedan'} ${parts.join(' y ')}.`:'Lo tienes todo hecho por hoy. ¡Bien!';
+  const its=itemsOn(t).filter(i=>!i.done&&toMin(i.time)!==null).map(i=>({...i,s:toMin(i.time),e:toMin(i.time)+i.dur})).filter(i=>i.e>nowM).sort((a,b)=>a.s-b.s);
+  const x=its[0];let nx='';
+  if(x){const on=x.s<=nowM,dm=x.s-nowM,inn=dm<60?`en ${dm} min`:`en ${Math.floor(dm/60)} h${dm%60?' '+dm%60+' min':''}`;
+    const btn=x.k==='t'?`<button class="chk round" data-act="ttog" data-id="${esc(x.id)}" aria-label="Marcar como hecha: ${esc(x.title)}">${TKSVG}</button>`:`<button class="chk" data-act="tog" data-d="${t}" data-h="${esc(x.id)}" aria-label="Marcar ${esc(x.title)}">${TKSVG}</button>`;
+    nx=`<div class="next${on?' live':''}">${btn}<div class="nx-b" data-act="calEv" data-k="${x.k}" data-id="${esc(x.id)}" data-d="${t}" role="button" tabindex="0"><span class="nx-k">${on?'Ahora':'Siguiente'}</span><span class="nx-t">${esc(x.title)}</span><span class="nx-s">${on?`hasta las ${fromMin(Math.min(1439,x.e))}`:`${inn} · ${x.time}`}</span></div>${its.length>1?`<span class="nx-more">+${its.length-1}</span>`:''}</div>`}
+  else if(tot)nx=`<div class="next idle"><span class="nx-ic">${svg(IC.cal)}</span><div class="nx-b"><span class="nx-t">Nada más con hora hoy</span><span class="nx-s">Tienes el resto del día libre</span></div><button class="btn sm ghost" data-act="sheet" data-k="tarea">${svg(IC.plus)}Planear</button></div>`;
+  return `<section class="hero" aria-label="Resumen de hoy"><div class="hero-hd"><div><h2>${hi}</h2><p>${sum}</p></div>${tot?`<span class="hero-pc">${pc}<small>%</small></span>`:''}</div>
+    ${tot?`<div class="dayprog" role="progressbar" aria-valuenow="${pc}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del día"><i style="width:${pc}%"></i></div>`:''}${nx}</section>`}
 V.resumen={form:()=>'',dyn(){
   const t=today(),hs=habitsSorted(),hd=hs.filter(h=>doneOn(t,h.id)).length;
   const tk=tasksToday(),tt=tk.done.length+tk.pend.length;
   const g=+cfg().sleepGoal||8,ls=S.sleep[t],lh=ls?sleepHours(ls.bed,ls.wake):0;
   const mm=moneyRange(periodAt(t,'mes')),b=+cfg().budget||0;
   const fresh=!hs.length&&!vals('tasks').length&&!Object.keys(S.sleep).length&&!vals('money').length;
-  const sunday=new Date().getDay()===0;
-  return `${fresh?welcome():''}
+  const wd=new Date().getDay(),sunday=wd===0,showWeek=wd===0||wd===1;
+  return `${fresh?welcome():''}<div class="hoy-top${fresh?' solo':''}">${fresh?'':hoyHero(hs,hd,tk)}
   <section class="rings" aria-label="Progreso de hoy">
-    ${ring(hs.length?hd/hs.length:0,hs.length?`${hd}/${hs.length}`:'—','Hábitos',hs.length?Math.round(hd/hs.length*100)+'%':'sin hábitos',`Hábitos: ${hd} de ${hs.length}`)}
-    ${ring(tt?tk.done.length/tt:0,tt?`${tk.done.length}/${tt}`:'—','Tareas',tt?Math.round(tk.done.length/tt*100)+'%':'sin tareas',`Tareas: ${tk.done.length} de ${tt}`)}
-    ${ring(ls?lh/g:0,ls?hm(lh):'—','Sueño',ls?`meta ${g} h`:'sin registrar',ls?`Sueño: ${fmtH(lh)} de ${g} horas`:'Sueño sin registrar')}
-    ${ring(b?mm.out/b:0,b?Math.round(mm.out/b*100)+'%':Math.round(mm.out)+' '+cfg().currency,'Gasto',b?money(mm.out):'este mes',b?`Gasto: ${Math.round(mm.out/b*100)} % del presupuesto`:`Gasto del mes: ${money(mm.out)}`)}
-  </section>
+    ${ring(hs.length?hd/hs.length:0,hs.length?`${hd}/${hs.length}`:'—','Hábitos',hs.length?Math.round(hd/hs.length*100)+'%':'sin hábitos',`Hábitos: ${hd} de ${hs.length}`,'#habitos')}
+    ${ring(tt?tk.done.length/tt:0,tt?`${tk.done.length}/${tt}`:'—','Tareas',tt?Math.round(tk.done.length/tt*100)+'%':'sin tareas',`Tareas: ${tk.done.length} de ${tt}`,'#tareas')}
+    ${ring(ls?lh/g:0,ls?hm(lh):'—','Sueño',ls?`meta ${g} h`:'sin registrar',ls?`Sueño: ${fmtH(lh)} de ${g} horas`:'Sueño sin registrar','#sueno')}
+    ${ring(b?mm.out/b:0,b?Math.round(mm.out/b*100)+'%':Math.round(mm.out)+' '+cfg().currency,'Gasto',b?money(mm.out):'este mes',b?`Gasto: ${Math.round(mm.out/b*100)} % del presupuesto`:`Gasto del mes: ${money(mm.out)}`,'#dinero')}
+  </section></div>
   ${perfectBanner()}
   <div class="two">
     <div class="panel"><div class="hd"><h2>Hábitos</h2><span class="muted">${hs.length?`${hd} de ${hs.length} hechos`:''}</span></div>
-      <div class="list">${hs.length?hs.map(h=>habitRow(h,t)).join(''):'<p class="empty">Aún no tienes hábitos. <a class="lnk" href="#habitos">Crea el primero</a>.</p>'}</div>
+      <div class="list">${hs.length?[...hs.filter(h=>!doneOn(t,h.id)),...hs.filter(h=>doneOn(t,h.id))].map(h=>habitRow(h,t)).join(''):'<p class="empty">Aún no tienes hábitos. <a class="lnk" href="#habitos">Crea el primero</a>.</p>'}</div>
       <div class="lbl">Anoche</div>
       <div>${ls?`<span class="num">${ls.bed} → ${ls.wake}</span> · <strong>${fmtH(lh)}</strong> · calidad ${ls.quality}/5`:'<button class="btn sm ghost" data-act="sheet" data-k="noche">Registrar cómo dormiste</button>'}</div>
     </div>
@@ -1218,7 +1250,7 @@ V.resumen={form:()=>'',dyn(){
       <div class="list">${tt?[...tk.pend,...tk.done].map(r=>taskRow(r,{compact:true})).join(''):'<p class="empty">No tienes tareas para hoy.</p>'}</div>
     </div>
   </div>
-  <a class="weekcard${sunday?' hot':''}" href="#semana">${svg(IC.spark)}<span><strong>${sunday?'Tu resumen semanal está listo':'Resumen de la semana'}</strong><span>Sueño, hábitos, tareas, estudio y gastos de un vistazo</span></span>${svg(IC.arrow)}</a>
+  ${showWeek?`<a class="weekcard${sunday?' hot':''}" href="#semana">${svg(IC.spark)}<span><strong>${sunday?'Tu resumen semanal está listo':'Resumen de la semana'}</strong><span>Sueño, hábitos, tareas, estudio y gastos de un vistazo</span></span>${svg(IC.arrow)}</a>`:''}
   ${dayAgenda()}`;
 }};
 
@@ -1283,11 +1315,11 @@ function calGrid(days,mini){const t=today();
       ${cols.map(c=>`<div class="cal-col${c.d===t?' today':''}" data-d="${c.d}">${c.d===t?`<span class="cal-now" style="top:${nowM/60*CAL.H}px"></span>`:''}${c.timed.map(ev=>evBlock(ev,c.d)).join('')}</div>`).join('')}
     </div></div></div>
     ${mini?'':`<p class="muted cal-hint">Toca un hueco para añadir una tarea a esa hora. Toca un hábito o una tarea para cambiar su hora, marcarla o mandarla al Calendario de Apple.</p>`}`}
-function dayAgenda(){const t=today(),H=44,n=new Date(),nowM=n.getHours()*60+n.getMinutes();
+function dayAgenda(){const t=today(),n=new Date(),nowM=n.getHours()*60+n.getMinutes();
   const evs=lanes(itemsOn(t).filter(i=>toMin(i.time)!==null).map(i=>({...i,s:toMin(i.time),e:Math.min(1440,toMin(i.time)+i.dur)})));
   let a=Math.min(nowM,...evs.map(e=>e.s)),z=Math.max(nowM+60,...evs.map(e=>e.e));
   a=Math.max(0,Math.floor(a/60)-1);z=Math.min(24,Math.ceil(z/60)+1);if(z-a<5){z=Math.min(24,a+5);a=Math.max(0,z-5)}
-  const off=a*60,hrs=z-a;
+  const off=a*60,hrs=z-a,H=Math.max(26,Math.min(44,Math.round(380/hrs)));
   return `<section class="panel agenda" aria-label="Tu día"><div class="hd"><h2>Tu día</h2><button class="btn sm ghost" data-act="openCal">${svg(IC.cal)}Calendario</button></div>
   <div class="ag-g" style="height:${hrs*H}px">
     <div class="ag-hours">${[...Array(hrs+1)].map((_,i)=>i&&i<hrs?`<span style="top:${i*H}px">${pad(a+i)}:00</span>`:'').join('')}</div>
