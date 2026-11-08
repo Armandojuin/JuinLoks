@@ -802,6 +802,8 @@ a.btn{text-decoration:none}
 .hc-bar{flex:1;display:grid;gap:4px;font-size:.78rem}.hc-bar .track{height:6px}
 .calgrid .cal.rest{opacity:.35}.calgrid .cal.out{opacity:.45}
 .calgrid.wk .cal{min-height:38px;font-size:.8rem}
+.calgrid.mo{gap:4px}.calgrid.mo .cal{aspect-ratio:auto;height:30px;min-height:0;font-size:.7rem;border-radius:9px}.calgrid.mo .cal:disabled{opacity:.18}
+@media (min-width:900px){.calgrid.mo .cal{height:28px}}
 .hc-more{display:inline-flex;align-items:center;gap:4px;justify-self:start;border:0;background:none;color:var(--muted);font:600 .8rem var(--f-body);cursor:pointer;padding:2px 0}
 .hc-more .ic{width:14px;height:14px;transform:rotate(-90deg);transition:transform .25s var(--e-out)}.hc-more .ic.up{transform:rotate(90deg)}.hc-more:hover{color:var(--ink)}
 .hnew{justify-self:center}
@@ -1498,14 +1500,13 @@ dyn(){
   const WDL=['L','M','X','J','V','S','D'];
   const todayHs=hs.filter(h=>habitOn(h,t)),tdone=todayHs.filter(h=>doneOn(t,h.id));
   const chip=h=>{const on=doneOn(t,h.id),j=justDid('h',h.id+'|'+t);return `<button class="hchip${on?' on':''}${j?' just':''}" data-fk="c${esc(h.id)}" data-act="tog" data-d="${t}" data-h="${h.id}" aria-pressed="${on}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}"><span class="chk${on?' on':''}${j?' just':''}"${j?jd():''}>${TKSVG}</span><span class="hc-n">${esc(h.name)}</span>${h.time?`<span class="hc-t">${h.time}</span>`:''}</button>`};
-  const card=({h,c,due,pct,st})=>{const open=!month||ui.hx===h.id||!cur;
+  const card=({h,c,due,pct,st})=>{const open=true;
     return `<section class="panel hcard" aria-label="${esc(h.name)}">
     <div class="hc-hd"><div class="hc-tt"><h2>${esc(h.name)}${exTag(h)}</h2><span class="muted">${h.time?h.time+' · ':''}${habitDays(h).length===7?'todos los días':habitDays(h).map(x=>WD.find(w=>+w[0]===x)[1]).join(' ')}</span></div>
       <div class="hcount">${streakPill(st)}<button class="n-ic" data-act="habSched" data-id="${esc(h.id)}" aria-label="Editar ${esc(h.name)}" title="Editar hábito">${svg(IC.edit)}</button></div></div>
     <div class="hc-pr"><span class="hc-big">${pct}<small>%</small></span><div class="hc-bar"><div class="track"><div class="fill" style="width:${Math.min(100,pct)}%"></div></div><span class="muted">${c} de ${due} ${due===1?'día':'días'} ${cur?'hasta hoy':''}</span></div></div>
-    ${open?`<div class="calgrid">${WDL.map(x=>`<span class="wd">${x}</span>`).join('')}${month?'<span></span>'.repeat(off):''}${ds.map(d=>cell(h,d)).join('')}</div>`
+    ${open?`<div class="calgrid${month?' mo':' wk'}">${WDL.map(x=>`<span class="wd">${x}</span>`).join('')}${month?'<span></span>'.repeat(off):''}${ds.map(d=>cell(h,d)).join('')}</div>`
       :`<div class="calgrid wk">${WDL.map(x=>`<span class="wd">${x}</span>`).join('')}${wk.map(d=>cell(h,d,el.has(d)||d>t)).join('')}</div>`}
-    ${month&&cur?`<button class="hc-more" data-act="hx" data-id="${esc(h.id)}" aria-expanded="${open}">${open?'Ver solo esta semana':'Ver todo el mes'}${svg(IC.chev,'ic'+(open?' up':''))}</button>`:''}
   </section>`};
   return `${cur?perfectBanner():''}
   <div class="tstrip hstrip"><div><b>${hst.pct}%</b><span>cumplimiento</span></div><div><b>${hst.perfect}/${hst.el.length}</b><span>días perfectos</span></div><div><b>${best}</b><span>mejor racha</span></div></div>
