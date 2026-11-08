@@ -753,8 +753,11 @@ body.n-full-note .n-tb{justify-content:center}
 .feed-ok{margin:0;display:flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;color:var(--ink)}.feed-ok .ic{width:16px;height:16px;color:#22b46a}
 a.btn{text-decoration:none}
 .t-open{cursor:pointer;border-radius:8px}.t-open:hover .t{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}.t-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.agenda .ag-acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.agenda .btn .ic{width:15px;height:15px}
-.cal.mini{border-radius:14px}.cal.mini .cal-dh{display:none}.cal.mini .cal-sc{max-height:340px}
+.agenda .btn .ic{width:15px;height:15px}
+.ag-g{position:relative;display:grid;grid-template-columns:44px 1fr;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.ag-hours{position:relative}.ag-hours span{position:absolute;right:7px;transform:translateY(-50%);font:500 .66rem var(--f-mono);color:var(--muted)}
+.ag-col{border-left:1px solid var(--line);background-position:0 -1px}
+.ev{font-family:var(--f-body)}
 @media (prefers-reduced-motion:no-preference){.fill,.prog i{transition:width .3s ease}.tile,.panel{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}}
 </style>
 
@@ -1142,7 +1145,6 @@ V.resumen={form:()=>'',dyn(){
     ${ring(b?mm.out/b:0,b?Math.round(mm.out/b*100)+'%':Math.round(mm.out)+' '+cfg().currency,'Gasto',b?money(mm.out):'este mes',b?`Gasto: ${Math.round(mm.out/b*100)} % del presupuesto`:`Gasto del mes: ${money(mm.out)}`)}
   </section>
   ${perfectBanner()}
-  ${dayAgenda()}
   <div class="two">
     <div class="panel"><div class="hd"><h2>Hábitos</h2><span class="muted">${hs.length?`${hd} de ${hs.length} hechos`:''}</span></div>
       <div class="list">${hs.length?hs.map(h=>habitRow(h,t)).join(''):'<p class="empty">Aún no tienes hábitos. <a class="lnk" href="#habitos">Crea el primero</a>.</p>'}</div>
@@ -1154,7 +1156,8 @@ V.resumen={form:()=>'',dyn(){
       <div class="list">${tt?[...tk.pend,...tk.done].map(r=>taskRow(r,{compact:true})).join(''):'<p class="empty">No tienes tareas para hoy.</p>'}</div>
     </div>
   </div>
-  <a class="weekcard${sunday?' hot':''}" href="#semana">${svg(IC.spark)}<span><strong>${sunday?'Tu resumen semanal está listo':'Resumen de la semana'}</strong><span>Sueño, hábitos, tareas, estudio y gastos de un vistazo</span></span>${svg(IC.arrow)}</a>`;
+  <a class="weekcard${sunday?' hot':''}" href="#semana">${svg(IC.spark)}<span><strong>${sunday?'Tu resumen semanal está listo':'Resumen de la semana'}</strong><span>Sueño, hábitos, tareas, estudio y gastos de un vistazo</span></span>${svg(IC.arrow)}</a>
+  ${dayAgenda()}`;
 }};
 
 /* ---------- tareas ---------- */
@@ -1197,7 +1200,7 @@ function calTitle(){const a=ui.cdate||today(),d=parse(a);if(ui.cview==='mes')ret
   const r=calRange();return shortDate(r[0])+' – '+shortDate(r[6])}
 const tviewTabs=()=>`<div class="tv-bar"><div class="ktabs" role="group" aria-label="Vista de tareas"><button data-act="tview" data-v="lista" aria-pressed="${ui.tview!=='cal'}">${svg(IC.tareas)}Lista</button><button data-act="tview" data-v="cal" aria-pressed="${ui.tview==='cal'}">${svg(IC.cal)}Calendario</button></div>
   <button class="btn sm ghost apple-btn" data-act="sheet" data-k="apple">${svg(IC.cal)}Calendario de Apple</button></div>`;
-function evBlock(ev,d){const top=ev.s/60*CAL.H,h=Math.max(22,(ev.e-ev.s)/60*CAL.H-2),w=100/ev.n;
+function evBlock(ev,d,H=CAL.H,off=0){const top=(ev.s-off)/60*H,h=Math.max(22,(ev.e-ev.s)/60*H-2),w=100/ev.n;
   return `<button class="ev ${ev.k==='h'?'hab':'task'}${ev.done?' done':''}${ev.imp?' imp':''}" data-act="calEv" data-k="${ev.k}" data-id="${esc(ev.id)}" data-d="${d}" style="top:${top}px;height:${h}px;left:calc(${ev.lane*w}% + 2px);width:calc(${w}% - 4px)" title="${esc(ev.title)} · ${ev.time}">
     <span class="ev-t">${ev.k==='h'?svg(ev.done?IC.check:IC.habitos):''}${esc(ev.title)}</span>${h>34?`<span class="ev-h">${ev.time} – ${fromMin(ev.e)}</span>`:''}</button>`}
 function calView(){const days=calRange(),t=today(),grid=ui.cview!=='mes';
@@ -1218,10 +1221,17 @@ function calGrid(days,mini){const t=today();
       ${cols.map(c=>`<div class="cal-col${c.d===t?' today':''}" data-d="${c.d}">${c.d===t?`<span class="cal-now" style="top:${nowM/60*CAL.H}px"></span>`:''}${c.timed.map(ev=>evBlock(ev,c.d)).join('')}</div>`).join('')}
     </div></div></div>
     ${mini?'':`<p class="muted cal-hint">Toca un hueco para añadir una tarea a esa hora. Toca un hábito o una tarea para cambiar su hora, marcarla o mandarla al Calendario de Apple.</p>`}`}
-function dayAgenda(){const t=today(),its=itemsOn(t),timed=its.filter(i=>toMin(i.time)!==null).length;
-  return `<section class="panel agenda" aria-label="Tu día"><div class="hd"><h2>Tu día</h2><span class="ag-acts"><span class="muted">${timed?`${timed} ${timed===1?'cosa':'cosas'} con hora`:'Nada con hora todavía'}</span><button class="btn sm ghost" data-act="openCal">${svg(IC.cal)}Calendario</button></span></div>
-  ${calGrid([t],true)}
-  <p class="muted cal-hint">Toca un hueco para añadir una tarea a esa hora, o toca un evento para editarlo o marcarlo.</p></section>`}
+function dayAgenda(){const t=today(),H=44,n=new Date(),nowM=n.getHours()*60+n.getMinutes();
+  const evs=lanes(itemsOn(t).filter(i=>toMin(i.time)!==null).map(i=>({...i,s:toMin(i.time),e:Math.min(1440,toMin(i.time)+i.dur)})));
+  let a=Math.min(nowM,...evs.map(e=>e.s)),z=Math.max(nowM+60,...evs.map(e=>e.e));
+  a=Math.max(0,Math.floor(a/60)-1);z=Math.min(24,Math.ceil(z/60)+1);if(z-a<5){z=Math.min(24,a+5);a=Math.max(0,z-5)}
+  const off=a*60,hrs=z-a;
+  return `<section class="panel agenda" aria-label="Tu día"><div class="hd"><h2>Tu día</h2><button class="btn sm ghost" data-act="openCal">${svg(IC.cal)}Calendario</button></div>
+  <div class="ag-g" style="height:${hrs*H}px">
+    <div class="ag-hours">${[...Array(hrs+1)].map((_,i)=>i&&i<hrs?`<span style="top:${i*H}px">${pad(a+i)}:00</span>`:'').join('')}</div>
+    <div class="cal-col ag-col" data-d="${t}" data-h="${H}" data-from="${off}" style="background-size:100% ${H}px">${nowM>=off&&nowM<=z*60?`<span class="cal-now" style="top:${(nowM-off)/60*H}px"></span>`:''}${evs.map(ev=>evBlock(ev,t,H,off)).join('')}</div>
+  </div>
+  <p class="muted cal-hint">${evs.length?'':'Nada con hora todavía. '}Toca una hora libre para añadir una tarea.</p></section>`}
 function calAfter(){const sc=document.getElementById('calSc');if(!sc)return;
   if(ui.cscroll==null){const n=new Date(),m=(ui.cdate===today()||calRange().includes(today()))?n.getHours()*60+n.getMinutes()-90:7*60;ui.cscroll=Math.max(0,m/60*CAL.H)}
   sc.scrollTop=ui.cscroll;sc.addEventListener('scroll',()=>{ui.cscroll=sc.scrollTop},{passive:true})}
@@ -1880,7 +1890,7 @@ function renderDyn(){
   dyn.innerHTML=V[ui.route].dyn();
   if(keep){const el=document.getElementById(keep.id);if(el){el.value=keep.v;el.focus();try{el.setSelectionRange(keep.s,keep.e)}catch(_){}}}
   if(notesOn)notesAfterMount();else document.body.classList.remove('n-editing');
-  if((ui.route==='tareas'&&ui.tview==='cal')||ui.route==='resumen')calAfter();
+  if(ui.route==='tareas'&&ui.tview==='cal')calAfter();
   const ex=COLS.some(c=>Object.values(S[c]).some(v=>v&&v.ex));
   document.getElementById('exNotice').hidden=!ex;
 }
@@ -1905,7 +1915,7 @@ window.addEventListener('hashchange',fromHash);
 
 document.addEventListener('click',e=>{
   if(e.target.id==='sheet'){closeSheet();return}
-  const cc=e.target.closest('.cal-col');if(cc&&!e.target.closest('.ev')){const y=e.clientY-cc.getBoundingClientRect().top,m=Math.max(0,Math.min(1425,Math.floor(y/CAL.H*60/15)*15));ui.prefill={date:cc.dataset.d,time:fromMin(m)};openSheet('tarea');return}
+  const cc=e.target.closest('.cal-col');if(cc&&!e.target.closest('.ev')){const y=e.clientY-cc.getBoundingClientRect().top,m=Math.max(0,Math.min(1425,(+cc.dataset.from||0)+Math.floor(y/(+cc.dataset.h||CAL.H)*60/15)*15));ui.prefill={date:cc.dataset.d,time:fromMin(m)};openSheet('tarea');return}
   const nc=e.target.closest('[data-ncmd]');if(nc){noteCmd(nc.dataset.ncmd);return}
   const ntb=e.target.closest('[data-ntbl]');if(ntb){tableOp(ntb.dataset.ntbl);return}
   const nb=e.target.closest('[data-route]');if(nb){sfx('tap');let r=nb.dataset.route;if(r==='more')r=ui.lastMore||'sueno';if(location.hash!=='#'+r)location.hash=r;else go(r);return}
