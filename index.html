@@ -1330,7 +1330,7 @@ function notesRefresh(){const app=document.getElementById('notesApp');if(!app)re
   const ns=notesIn(),box=document.getElementById('nNotes');box.className='n-notes '+(NT.view==='list'?'is-list':'is-grid');
   box.innerHTML=ns.length?ns.map(noteCard).join(''):`<div class="n-none">${NT.q||NT.tag?'No hay notas que coincidan.':'Esta carpeta está vacía.'}<button class="btn sm" data-act="nNew">${svg(IC.compose)}Nueva nota</button></div>`;
   // editor
-  const ed=document.getElementById('nEd'),n=NT.note&&S.notes[NT.note];
+  const ed=document.getElementById('nEd'),n=NT.note&&S.notes[NT.note]?{...S.notes[NT.note],id:NT.note}:null;
   document.getElementById('nEmpty').hidden=!!n;ed.hidden=!n;document.getElementById('nTb').hidden=!n;document.getElementById('nInfo').hidden=!n;if(!n)document.getElementById('nTbl').hidden=true;
   document.getElementById('nMeta').textContent=n?'Editada '+noteDate(n.updated).replace(/^(\d)/,'a las $1'):'';
   document.getElementById('nActs').innerHTML=n?`<button class="n-sess" data-act="nSession" title="Apuntar en Estudio el tiempo dedicado a esta nota">${svg(IC.clock)}<span>Registrar sesión</span></button>
@@ -1400,11 +1400,16 @@ function updateTb(){const tb=document.getElementById('nTb');if(!tb)return;const 
     b.classList.toggle('on',on)});
   const tbl=document.getElementById('nTbl');if(tbl)tbl.hidden=!(el&&el.closest('#nEd table'))}
 // barra de formato pegada al teclado en el móvil
-function kbOffset(){const vv=window.visualViewport;if(!vv)return;const off=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);document.documentElement.style.setProperty('--kb',off+'px')}
+function kbOffset(){const vv=window.visualViewport;if(!vv)return;const off=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);document.documentElement.style.setProperty('--kb',off+'px');requestAnimationFrame(caretVisible)}
 if(window.visualViewport){visualViewport.addEventListener('resize',kbOffset);visualViewport.addEventListener('scroll',kbOffset)}
-document.addEventListener('selectionchange',()=>{if(document.getElementById('nEd'))updateTb()});
+// que la línea donde escribes no quede tapada por la barra de formato ni el teclado
+function caretVisible(){if(!document.body.classList.contains('n-editing'))return;const s=edSel();if(!s)return;let r=s.getRangeAt(0).getBoundingClientRect();
+  if(!r.height){const el=selEl();if(el)r=el.getBoundingClientRect();else return}
+  const vv=window.visualViewport,tb=document.getElementById('nTb'),bottom=(vv?vv.offsetTop+vv.height:innerHeight)-((tb&&tb.offsetHeight)||56)-12,top=(vv?vv.offsetTop:0)+12;
+  if(r.bottom>bottom)window.scrollBy(0,r.bottom-bottom);else if(r.top<top)window.scrollBy(0,r.top-top)}
+document.addEventListener('selectionchange',()=>{if(document.getElementById('nEd')){updateTb();requestAnimationFrame(caretVisible)}});
 document.addEventListener('mousedown',e=>{if(e.target.closest('#nTb button,#nTbl button'))e.preventDefault()});
-document.addEventListener('input',e=>{if(e.target.id==='nEd'){noteChanged();const n=S.notes[NT.note];if(n){clearTimeout(NT.infoT);NT.infoT=setTimeout(()=>{const ed=document.getElementById('nEd');if(ed)renderInfo({...n,id:'_live',updated:'_'+Date.now(),html:ed.innerHTML,folder:n.folder})},400)}}
+document.addEventListener('input',e=>{if(e.target.id==='nEd'){noteChanged();requestAnimationFrame(caretVisible);const n=S.notes[NT.note];if(n){clearTimeout(NT.infoT);NT.infoT=setTimeout(()=>{const ed=document.getElementById('nEd');if(ed)renderInfo({...n,id:'_live',updated:'_'+Date.now(),html:ed.innerHTML,folder:n.folder})},400)}}
   else if(e.target.id==='nq'){NT.q=e.target.value;notesRefresh()}});
 document.addEventListener('change',e=>{
   if(e.target.id==='nMove'&&NT.note&&S.notes[NT.note]){if(NT.dirty)saveNote();put('notes',NT.note,{...S.notes[NT.note],folder:e.target.value});toast(e.target.value?'Movida a '+folderName(e.target.value):'Nota sin carpeta')}
