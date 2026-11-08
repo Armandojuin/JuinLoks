@@ -74,3 +74,14 @@ En Supabase, los proyectos gratuitos se pausan tras una semana sin uso. Entra en
 
 **¿Cómo actualizo la app si me haces cambios?**
 Sube a GitHub el nuevo `index.html` y sustituye el anterior. **No reemplaces `config.js`.** Los dispositivos cargan la versión nueva la segunda vez que abres la app.
+
+---
+
+## Calendario de Apple (suscripción automática)
+
+Para que tus tareas y hábitos con hora aparezcan solos en el Calendario de Apple:
+
+1. En Supabase, abre **SQL Editor → New query**, pega el contenido de `calendario.sql` y pulsa **Run**. Solo una vez.
+2. En JuinLoks, ve a **Tareas → Calendario de Apple → Crear enlace de suscripción** y pulsa **Suscribirme en Calendario de Apple**.
+
+El calendario «JuinLoks» se actualiza solo. Funciona en un sentido: los cambios se hacen en JuinLoks.
