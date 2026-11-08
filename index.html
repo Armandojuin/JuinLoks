@@ -750,6 +750,7 @@ body.n-full-note .n-tb{justify-content:center}
 .ap-opt p{margin:0;font-size:.88rem;line-height:1.45}
 .feed-box{display:grid;gap:10px}.feed-l{display:flex;gap:6px}.feed-l input{flex:1;min-width:0;font:.75rem var(--f-mono)}
 .feed-err{margin:0;color:#ff8a80;font-size:.88rem}
+.feed-ok{margin:0;display:flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;color:var(--ink)}.feed-ok .ic{width:16px;height:16px;color:#22b46a}
 a.btn{text-decoration:none}
 @media (prefers-reduced-motion:no-preference){.fill,.prog i{transition:width .3s ease}.tile,.panel{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}}
 </style>
@@ -1240,7 +1241,9 @@ async function feedLink(){if(!sb||!user||!window.JL_SB)throw new Error('Inicia s
   return JL_SB.url+'/rest/v1/rpc/jl_ics?t='+tok+'&apikey='+encodeURIComponent(JL_SB.key)}
 async function makeFeed(){const box=document.getElementById('feedBox');if(!box)return;box.innerHTML='<p class="muted">Creando tu enlace…</p>';
   try{const link=await feedLink(),web=link.replace(/^https:/,'webcal:');ui.feed=link;
-    box.innerHTML=`<a class="btn big" href="${esc(web)}">${svg(IC.cal)}Suscribirme en Calendario de Apple</a>
+    let chk='';try{const r=await fetch(link,{cache:'no-store'}),tx=await r.text();const n=(tx.match(/BEGIN:VEVENT/g)||[]).length;
+      chk=r.ok&&tx.startsWith('BEGIN:VCALENDAR')?`<p class="feed-ok">${svg(IC.check)}Calendario comprobado: ${n} ${n===1?'evento':'eventos'}${n?'':'. Pon hora a tus hábitos o fecha a tus tareas para que aparezcan'}.</p>`:`<p class="feed-err">El enlace se creó, pero el calendario no responde con el formato correcto (${r.status}). Avisa a Claude con este mensaje.</p>`}catch(_){chk='<p class="muted" style="margin:0">No se pudo comprobar el calendario ahora mismo (¿sin conexión?).</p>'}
+    box.innerHTML=chk+`<a class="btn big" href="${esc(web)}">${svg(IC.cal)}Suscribirme en Calendario de Apple</a>
     <div class="feed-l"><input id="feedUrl" readonly value="${esc(link)}" aria-label="Enlace del calendario"><button class="btn sm ghost" data-act="feedCopy">Copiar</button></div>
     <p class="muted" style="margin:0;font-size:.85rem">En el Mac: Calendario → Archivo → Nueva suscripción a calendario → pega el enlace. El calendario «JuinLoks» se actualiza solo. Puedes cambiar cada cuánto en sus ajustes.</p>`}
   catch(e){const m=(e&&(e.message||e.code))||'';box.innerHTML=/calendar_feeds|PGRST205|relation|does not exist/i.test(m+(e&&e.code||''))?
