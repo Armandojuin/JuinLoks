@@ -675,21 +675,12 @@ body.n-full-note .n-tb{justify-content:center}
   .perfect{animation:jlIn .45s cubic-bezier(.2,1.3,.4,1) both}
   ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
   ::view-transition-new(root){animation:jlReveal .55s cubic-bezier(.4,0,.2,1)}
-  html.vt-full::view-transition-old(root){animation:jlVtDim .5s ease both}
-  html.vt-full::view-transition-new(root){animation:jlVtUndim .5s ease both}
-  html.vt-full::view-transition-group(jl-notes){animation-duration:.52s;animation-timing-function:cubic-bezier(.2,.85,.25,1);overflow:clip;border-radius:18px;box-shadow:0 30px 80px -20px color-mix(in srgb,var(--accent) 45%,transparent),0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent)}
-  html.vt-full::view-transition-old(jl-notes),html.vt-full::view-transition-new(jl-notes){height:100%;width:100%;object-fit:none;object-position:top left}
-  html.vt-full::view-transition-old(jl-notes){animation:jlVtOut .3s ease both}
-  html.vt-full::view-transition-new(jl-notes){animation:jlVtIn .4s ease .08s both}
-  @keyframes jlVtDim{to{opacity:.25;filter:blur(6px)}}
-  @keyframes jlVtUndim{from{opacity:.25;filter:blur(6px)}}
-  @keyframes jlVtOut{to{opacity:0}}
-  @keyframes jlVtIn{from{opacity:0}}
   @keyframes jlReveal{from{clip-path:circle(0 at var(--vt-x,50%) var(--vt-y,0))}to{clip-path:circle(var(--vt-r,150vmax) at var(--vt-x,50%) var(--vt-y,0))}}
 }
 .n-saved{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:600;color:var(--muted);opacity:0;transition:opacity .25s ease;white-space:nowrap}
 .n-saved .ic{width:13px;height:13px;color:var(--accent)}
 .n-saved.show{opacity:1}
+.n-veil{position:fixed;inset:0;z-index:27;pointer-events:none;background:color-mix(in srgb,var(--bg) 55%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .n-ghost{position:fixed;z-index:60;pointer-events:none;box-sizing:border-box;overflow:hidden;background:linear-gradient(160deg,color-mix(in srgb,var(--fc) 30%,var(--surface)),var(--surface) 60%);border:1px solid color-mix(in srgb,var(--fc) 70%,var(--line));box-shadow:0 24px 60px -18px color-mix(in srgb,var(--fc) 60%,transparent),0 0 0 4px color-mix(in srgb,var(--fc) 18%,transparent)}
 .n-ghost::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fc)}
 .n-gt{display:block;padding:14px 18px;font:700 1.05rem var(--f-display);color:var(--ink);transform-origin:0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1699,18 +1690,34 @@ function setFull(m,noFs){if(m==='note'&&!NT.note)m='';NT.full=m||'';const b=docu
 function fsSync(){const fsEl=document.fullscreenElement,desk=!window.matchMedia('(max-width:899px)').matches;
   try{if(NT.full&&!fsEl&&desk&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
     if(!NT.full&&fsEl&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(_){}}
-// pantalla completa con animación: el panel se expande (o se recoge) hasta su sitio y el contenido entra en cascada
-function fullAnim(m){const app=document.getElementById('notesApp'),opening=!!m;
-  if(calm()||!app){setFull(m);return}
-  sfx(opening?'open':'tap');
-  const cascade=()=>{const ed=document.getElementById('nEd'),sel=NT.full==='note'?[...(ed?[...ed.children].slice(0,8):[])]:[...app.querySelectorAll('.n-col:not([hidden])>*')].slice(0,10);
-    sel.forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(14px)',filter:'blur(3px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:380,delay:120+i*45,easing:'cubic-bezier(.2,.85,.25,1)',fill:'backwards'}))};
-  if(!document.startViewTransition){setFull(m);if(opening){app.animate([{clipPath:'inset(6% 6% 6% 6% round 24px)',opacity:.4},{clipPath:'inset(0 0 0 0 round 0)',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.85,.25,1)'});cascade()}return}
-  const de=document.documentElement;de.classList.add('vt-full');de.classList.toggle('vt-open',opening);app.style.viewTransitionName='jl-notes';
-  const t=document.startViewTransition(()=>setFull(m,true));
-  t.ready.then(()=>{if(opening)cascade()}).catch(()=>{});
-  t.finished.finally(()=>{app.style.viewTransitionName='';de.classList.remove('vt-full','vt-open');fsSync()})}
-document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&NT.full)setFull('')});
+// pantalla completa con animación continua: el mismo panel crece (o se recoge) en vivo, sin cortes
+const FS_EASE='cubic-bezier(.32,.72,0,1)',FS_D=520;
+function fsRect(m){const sel=m==='note'?'.n-editor':'#notesApp',el=document.querySelector(sel);return el?el.getBoundingClientRect():null}
+function fsVeil(show){let v=document.querySelector('.n-veil');if(!v){v=document.createElement('div');v.className='n-veil';document.body.appendChild(v)}
+  const an=v.animate([{opacity:show?0:1},{opacity:show?1:0}],{duration:FS_D,easing:'ease',fill:'forwards'});an.onfinish=()=>v.remove();setTimeout(()=>v.remove(),FS_D+400)}
+function fsMorph(app,r,opening){const W=innerWidth,H=innerHeight,box={top:r.top+'px',left:r.left+'px',right:(W-r.right)+'px',bottom:(H-r.bottom)+'px',borderRadius:'18px',boxShadow:'0 0 0 1px color-mix(in srgb,var(--accent) 40%,transparent),0 30px 80px -20px color-mix(in srgb,var(--accent) 45%,transparent)'},
+    full={top:'0px',left:'0px',right:'0px',bottom:'0px',borderRadius:'0px',boxShadow:'0 0 0 0 transparent,0 0 0 0 transparent'};
+  app.style.height='auto';return app.animate(opening?[box,full]:[full,box],{duration:FS_D,easing:FS_EASE})}
+async function fullAnim(m){const app=document.getElementById('notesApp'),opening=!!m,mode=m||NT.full;
+  if(calm()||!app||NT.fsBusy||!app.animate){setFull(m);return}
+  NT.fsBusy=true;sfx(opening?'open':'tap');
+  const desk=!window.matchMedia('(max-width:899px)').matches,wait=pr=>Promise.race([pr,new Promise(r=>setTimeout(r,900))]).catch(()=>{});
+  try{
+    if(opening){
+      if(desk&&!document.fullscreenElement&&document.documentElement.requestFullscreen)await wait(document.documentElement.requestFullscreen());
+      const r=fsRect(mode);setFull(m,true);if(!r)return;fsVeil(true);
+      const an=fsMorph(app,r,true);
+      const ed=document.getElementById('nEd'),kids=mode==='note'&&ed?[...ed.children].slice(0,8):[];
+      kids.forEach((el,i)=>el.animate([{opacity:.25,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:FS_D,delay:60+i*35,easing:FS_EASE,fill:'backwards'}));
+      await wait(an.finished);
+    }else{
+      if(document.fullscreenElement&&document.exitFullscreen){NT.fsLeaving=true;await wait(document.exitFullscreen());NT.fsLeaving=false}
+      const b=document.body,keep=b.className;setFull('',true);const r=fsRect(mode);b.className=keep;NT.full=mode;
+      if(!r){setFull('',true);return}
+      fsVeil(false);const an=fsMorph(app,r,false);await wait(an.finished);setFull('',true);
+      if(mode==='note')app.querySelectorAll('.n-folders,.n-list').forEach((el,i)=>el.animate([{opacity:0,transform:'translateX(-12px)'},{opacity:1,transform:'none'}],{duration:360,delay:i*60,easing:FS_EASE,fill:'backwards'}))}
+  }finally{app.style.height='';NT.fsBusy=false}}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&NT.full&&!NT.fsLeaving&&!NT.fsBusy)fullAnim('')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&NT.full&&!ui.sheet){fullAnim('')}});
 function notesAfterMount(){const q=document.getElementById('nq');if(q)q.value=NT.q;notesRefresh();maybeSeedNotes()}
 function maybeSeedNotes(){if(S.config.notesSeeded||notesAll().length||!user||!NT.pulled)return;const id=uid(),now=new Date().toISOString();
