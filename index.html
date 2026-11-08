@@ -828,6 +828,13 @@ a.btn{text-decoration:none}
 .n-mi:hover{background:var(--glow-soft)}.n-mi.bad,.n-mi.bad .ic{color:var(--bad)}.n-mi.armed{background:color-mix(in srgb,var(--bad) 14%,transparent)}
 .n-mi select{max-width:120px;padding:6px 8px;border-radius:9px;font-size:.85rem}
 @media (max-width:899px){body.n-editing header.top,body.n-editing #subnav,body.n-editing #tabs{display:none}body.n-editing .wrap{padding-top:6px}}
+.slhero .sl-sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:.88rem;color:var(--muted)}
+.qd{display:inline-flex;gap:3px;flex:none}.qd i{width:7px;height:7px;border-radius:50%;background:var(--line)}.qd i.on{background:var(--accent)}
+.mh-msg .ic{width:14px;height:14px;vertical-align:-2px;margin-right:2px}.mh-msg b{color:var(--ink)}
+.tstrip.hstrip.sl4{grid-template-columns:repeat(4,minmax(0,1fr))}@media (max-width:420px){.tstrip.sl4{gap:5px}.tstrip.sl4>div b{font-size:1rem}}.tstrip .bad b{color:var(--bad)}
+.sl-row{align-items:center;gap:12px}.sl-h{display:grid;justify-items:end;gap:3px;min-width:74px}.sl-h b{font-size:.95rem}
+.sl-dur{text-align:center;font:700 2.2rem/1 var(--f-display);letter-spacing:-.04em;padding:4px 0 2px}
+@media (max-width:420px){.sl-row .qd{display:none}}
 .aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
@@ -1603,19 +1610,26 @@ dyn(){
     if(!r)return `<span class="tl-d">${lab}</span><div class="tl-t"></div><span class="tl-h muted">—</span>`;
     const a=Math.max(0,rel(r.bed)-W0),h=sleepHours(r.bed,r.wake),w=Math.min(W-a,h),short=h<g-1;
     return `<span class="tl-d">${lab}</span><div class="tl-t"><span class="tl-b${short?' short':''}${entering()?' grow':''}" style="left:${(a/W*100).toFixed(1)}%;width:${(w/W*100).toFixed(1)}%" title="${r.bed} → ${r.wake}"></span></div><span class="tl-h num${short?' muted':''}">${hm(h)}</span>`}).join('');
-  const hist=sl.recs.slice().sort((a,b)=>b.id.localeCompare(a.id));
-  return `<div class="hintbar"><span>La fecha de cada noche es el día en que te despiertas.</span><button class="btn sm" data-act="sheet" data-k="noche">${svg(IC.plus)}Registrar noche</button></div>
-  <div class="grid">
-   ${tile('Media · '+pword(),sl.n?fmtH(sl.avg):'—',`${sl.n} de ${elapsedOf(p).length} noches registradas · meta ${g} h`)}
-   ${tile('Te acuestas',bedStr,beds.length>1?`± ${Math.round(sd*60)} min de diferencia entre noches`:'Hora media de acostarte')}
-   ${tile('Deuda de sueño',fmtH(sl.debt),`Horas por debajo de tu meta · calidad media ${sl.n?sl.q.toFixed(1):'—'}/5`,sl.debt>3?'amt out':'')}
+  const hist=sl.recs.slice().sort((a,b)=>b.id.localeCompare(a.id)),cur=isCurrent();
+  const last=S.sleep[t],lh=last?sleepHours(last.bed,last.wake):0,dw=dayWindow(),wakeT=last?toMin(last.wake):dw.wake;
+  const bedRec=fromMin(((wakeT-g*60-15)%1440+1440)%1440);
+  const qd=q=>`<span class="qd" aria-label="Calidad ${q} de 5">${[1,2,3,4,5].map(i=>`<i class="${i<=q?'on':''}"></i>`).join('')}</span>`;
+  const gp=sl.n?Math.min(100,Math.round(sl.avg/g*100)):0;
+  const regular=beds.length>1?(sd*60>45?'Tu hora de acostarte cambia bastante. Acostarte a una hora parecida ayuda a dormir mejor.':'Te acuestas a una hora bastante regular. ¡Bien!'):'';
+  return `<section class="mhero slhero" aria-label="Resumen de sueño">
+    <div class="mh-top"><div>${cur&&last?`<span class="mh-l">Anoche</span><span class="mh-big">${fmtH(lh)}</span><span class="sl-sub"><span class="num">${last.bed} → ${last.wake}</span> ${qd(+last.quality||0)} ${lh>=g?'<span class="pill good">meta cumplida</span>':`<span class="pill">−${fmtH(g-lh)}</span>`}</span>`
+        :`<span class="mh-l">Media · ${p.label}</span><span class="mh-big">${sl.n?fmtH(sl.avg):'—'}</span>`}</div>
+      <div class="mh-acts">${cur&&last?`<button class="btn sm ghost" data-act="sedit" data-id="${t}">${svg(IC.edit)}Editar</button>`:''}<button class="btn sm${cur&&!last?'':' ghost'}" data-act="sheet" data-k="noche">${svg(IC.plus)}Noche</button></div></div>
+    ${cur&&!last?`<button class="st-go" data-act="sheet" data-k="noche">${svg(IC.moon)}<span><b>¿Cómo dormiste anoche?</b><span>Regístralo en dos toques</span></span></button>`:''}
+    <div class="mh-bud"><div class="pbar-l"><span>Media de ${pword()} frente a tu meta</span><b>${sl.n?fmtH(sl.avg):'—'} de ${g} h</b></div><div class="bud"><div class="bud-f" style="width:${gp}%"></div></div></div>
+    ${cur?`<p class="mh-msg">${svg(IC.moon)} Para dormir ${g} h y levantarte a las ${fromMin(wakeT)}, acuéstate sobre las <b>${bedRec}</b>.${regular?' '+regular:''}</p>`:regular?`<p class="mh-msg">${regular}</p>`:''}
+  </section>
+  <div class="tstrip hstrip sl4"><div><b>${sl.n?fmtH(sl.avg):'—'}</b><span>media</span></div><div><b>${bedStr}</b><span>${beds.length>1?'± '+Math.round(sd*60)+' min':'te acuestas'}</span></div><div class="${sl.debt>3?'bad':''}"><b>${fmtH(sl.debt)}</b><span>deuda</span></div><div><b>${sl.n?sl.q.toFixed(1):'—'}</b><span>calidad /5</span></div></div>
+  <div class="panel"><div class="hd"><h2>Cuándo duermes</h2><span class="muted">${sl.n} de ${elapsedOf(p).length} noches</span></div>${pbar()}
+    ${nights.length?`<div class="tl"><span></span><div class="tl-ax num">${[[21,'21h'],[0,'0h'],[3,'3h'],[6,'6h'],[9,'9h']].map(([h,l])=>`<span style="left:${(((h<12?h+24:h)-W0)/W*100).toFixed(1)}%">${l}</span>`).join('')}</div><span></span>${rows}</div>`:'<p class="empty">No hay noches registradas en este periodo.</p>'}
   </div>
-  <div class="panel"><div class="hd"><h2>Cuándo duermes</h2><span class="muted">de qué hora a qué hora</span></div>
-    ${nights.length?`<div class="tl"><span></span><div class="tl-ax num">${[[21,'21h'],[0,'0h'],[3,'3h'],[6,'6h'],[9,'9h']].map(([h,l])=>`<span style="left:${(((h<12?h+24:h)-W0)/W*100).toFixed(1)}%">${l}</span>`).join('')}</div><span></span>${rows}</div>
-    <p class="muted" style="margin:0;font-size:.85rem">${beds.length>1?(sd*60>45?'Tu hora de acostarte cambia bastante de una noche a otra. Acostarte a una hora parecida cada día ayuda a dormir mejor.':'Te acuestas a una hora bastante regular. Buen trabajo.'):'Cuando registres más noches verás aquí lo regulares que son tus horarios.'}</p>`:'<p class="empty">No hay noches registradas en este periodo.</p>'}
-  </div>
-  <div class="panel"><div class="hd"><h2>Noches de ${pword()}</h2></div><div class="list">
-   ${hist.length?hist.map(r=>`<div class="row"><div class="grow"><div class="t">${shortDate(r.id)} · <span class="num">${fmtH(r.h)}</span> <span class="pill ${r.h>=g?'good':r.h<g-1?'bad':''}">${r.h>=g?'meta':'−'+fmtH(g-r.h)}</span>${exTag(r)}</div><div class="s"><span class="num">${r.bed} → ${r.wake}</span> · calidad ${r.quality}/5${r.note?' · '+esc(r.note):''}</div></div>${delBtn('sleep',r.id)}</div>`).join(''):'<p class="empty">Aún no hay noches en este periodo.</p>'}
+  <div class="panel"><div class="hd"><h2>Noches</h2><span class="muted">toca una para editarla</span></div><div class="list">
+   ${hist.length?hist.slice(0,ui.sAll?999:31).map(r=>`<div class="row t-open sl-row" data-act="sedit" data-id="${esc(r.id)}" role="button" tabindex="0" data-fk="s${esc(r.id)}"><div class="grow"><div class="t">${r.id===t?'Anoche':dayLabel(r.id)}${exTag(r)}</div><div class="s"><span class="num">${r.bed} → ${r.wake}</span>${r.note?' · '+esc(r.note):''}</div></div>${qd(+r.quality||0)}<div class="sl-h"><b class="num">${fmtH(r.h)}</b><span class="pill ${r.h>=g?'good':r.h<g-1?'bad':''}">${r.h>=g?'meta':'−'+fmtH(g-r.h)}</span></div></div>`).join(''):'<p class="empty">Aún no hay noches en este periodo.</p>'}
   </div></div>`;
 }};
 
@@ -1710,12 +1724,16 @@ const SHEETS={
     <label class="chip tog"><input type="checkbox" name="imp"><span>Importante</span></label>
     <button class="btn big" type="submit">Añadir tarea</button></form>`},
   gasto:()=>moneySheet('gasto'),ingreso:()=>moneySheet('ingreso'),
-  noche:()=>`<div class="sh-hd"><h2>¿Cómo dormiste?</h2>${closeBtn()}</div>
-    <form class="sh-f" data-form="sleep"><div class="sh-row"><label class="fld">Me acosté<input name="bed" type="time" required value="23:30"></label><label class="fld">Me desperté<input name="wake" type="time" required value="07:00"></label><label class="fld">Día<input name="date" type="date" required value="${today()}"></label></div>
+  noche:()=>{const ed=ui.edit&&ui.edit.k==='s'&&S.sleep[ui.edit.id]?{...S.sleep[ui.edit.id],id:ui.edit.id}:null,dw=dayWindow();
+    const bed=ed?ed.bed:fromMin(dw.bed%1440),wake=ed?ed.wake:fromMin(dw.wake),q=ed?+ed.quality||4:4;
+    return `<div class="sh-hd"><h2>${ed?'Editar noche':'¿Cómo dormiste?'}</h2>${closeBtn()}</div>
+    <form class="sh-f" data-form="sleep"><div class="sl-dur" id="slDur">${fmtH(sleepHours(bed,wake))}</div>
+    <div class="sh-row"><label class="fld">Me acosté<input name="bed" type="time" required value="${bed}"></label><label class="fld">Me desperté<input name="wake" type="time" required value="${wake}"></label><label class="fld">Día<input name="date" type="date" required value="${ed?ed.id:today()}"></label></div>
     <div class="lbl">Calidad</div>
-    <div class="chips" role="radiogroup" aria-label="Calidad">${[[1,'Muy mala'],[2,'Mala'],[3,'Normal'],[4,'Buena'],[5,'Excelente']].map(([v,l])=>`<label class="chip"><input type="radio" name="quality" value="${v}"${v===4?' checked':''}><span>${l}</span></label>`).join('')}</div>
-    <input name="note" maxlength="140" placeholder="Nota (opcional): café tarde, desperté a las 3…" aria-label="Nota">
-    <button class="btn big" type="submit">Guardar noche</button></form>`,
+    <div class="chips" role="radiogroup" aria-label="Calidad">${[[1,'Muy mala'],[2,'Mala'],[3,'Normal'],[4,'Buena'],[5,'Excelente']].map(([v,l])=>`<label class="chip"><input type="radio" name="quality" value="${v}"${v===q?' checked':''}><span>${l}</span></label>`).join('')}</div>
+    <input name="note" maxlength="140" placeholder="Nota (opcional): café tarde, desperté a las 3…" aria-label="Nota" value="${esc(ed&&ed.note||'')}">
+    <input type="hidden" name="orig" value="${ed?ed.id:''}">
+    <button class="btn big" type="submit">${ed?'Guardar cambios':'Guardar noche'}</button>${ed?`<div class="sh-btns"><button type="button" class="btn ghost" data-act="sDel">Borrar noche</button></div>`:''}</form>`},
   estudio:()=>`<div class="sh-hd"><h2>Sesión de estudio</h2>${closeBtn()}</div>
     <form class="sh-f" data-form="learn"><input name="topic" required maxlength="80" placeholder="¿Qué estudiaste?" aria-label="Tema" autocomplete="off" value="${esc(ui.prefillTopic||'')}">
     <div class="lbl">Minutos</div>
@@ -2279,7 +2297,7 @@ function renderDyn(){
   if(S.config.accent!==renderDyn._a){renderDyn._a=S.config.accent;applyAccent(S.config.accent)}
   {const tk=curTheme()+curTone('dark')+curTone('light');if(tk!==renderDyn._t){renderDyn._t=tk;applyTheme(curTheme())}}
   const notesOn=ui.route==='conocimiento'&&ui.ktab==='notas';
-  const pb=document.getElementById('pbar');pb.hidden=['ajustes','resumen','semana','tareas','conocimiento'].includes(ui.route);if(!pb.hidden)pb.innerHTML=pbar();
+  const pb=document.getElementById('pbar');pb.hidden=['ajustes','resumen','semana','tareas','conocimiento','sueno'].includes(ui.route);if(!pb.hidden)pb.innerHTML=pbar();
   if(notesOn&&document.getElementById('notesApp')){notesRefresh();document.getElementById('exNotice').hidden=!COLS.some(c=>Object.values(S[c]).some(v=>v&&v.ex));return}
   const dyn=document.getElementById('dyn'),ae=document.activeElement;
   const keep=ae&&ae.id&&ae.tagName==='INPUT'&&dyn.contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart,e:ae.selectionEnd}:null;
@@ -2335,7 +2353,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
   if(a==='tog'){b.classList.toggle('on');b.classList.add('just');const ic=b.querySelector('.chk');if(ic){ic.classList.toggle('on',b.classList.contains('on'));ic.classList.add('just')}markJust('h',b.dataset.h+'|'+b.dataset.d);const was=doneOn(b.dataset.d,b.dataset.h);sfx(was?'uncheck':'check');toggleHabit(b.dataset.d,b.dataset.h);const hs=habitsSorted();if(!was&&b.dataset.d===today()&&hs.length&&hs.every(h=>doneOn(today(),h.id))){toast('¡Día perfecto! Has completado todos tus hábitos de hoy');confetti()}}
   else if(a==='sheet'&&b.dataset.k==='nota'){closeSheet();ui.ktab='notas';lsSet('jl-ktab','notas');if(location.hash!=='#conocimiento')history.replaceState(null,'','#conocimiento');go('conocimiento');newNote()}
-  else if(a==='sheet')openSheet(b.dataset.k||'menu');
+  else if(a==='sheet'){if(b.dataset.k==='noche'&&ui.edit&&ui.edit.k==='s')ui.edit=null;openSheet(b.dataset.k||'menu')}
   else if(a==='ktab'){if(NT.dirty)saveNote();if(NT.full)setFull('');ui.ktab=b.dataset.t;lsSet('jl-ktab',ui.ktab);document.body.classList.remove('n-editing');renderStatic();document.getElementById('dyn').innerHTML='';renderDyn()}
   else if(a==='nFolder'){NT.casc=Date.now();NT.folder=b.dataset.f;NT.q='';NT.tag='';NT.editF=false;const q=document.getElementById('nq');if(q)q.value='';ui.armed=null;setLevel('list');notesRefresh()}
   else if(a==='nOpen'){if(b.dataset.f)NT.folder=b.dataset.f;const from=b.getBoundingClientRect(),fc=getComputedStyle(b).getPropertyValue('--fc').trim();openNote(b.dataset.id,false);noteZoom(from,fc,b)}
@@ -2388,6 +2406,8 @@ document.addEventListener('click',e=>{
   else if(a==='studyStart'){lsSet('jl-timer',JSON.stringify({start:Date.now()}));sfx('success');renderDyn();toast('Cronómetro en marcha. Puedes salir de la app')}
   else if(a==='studyStop'){const tm=stTimer();lsSet('jl-timer','');if(!tm){renderDyn();return}const mins=Math.max(1,Math.round((Date.now()-tm.start)/60000));ui.prefillMin=mins;ui.prefillTopic=tm.topic||'';renderDyn();openSheet('estudio')}
   else if(a==='studyCancel'){lsSet('jl-timer','');renderDyn();toast('Cronómetro descartado')}
+  else if(a==='sedit'){ui.armed=null;ui.edit={k:'s',id:b.dataset.id};openSheet('noche')}
+  else if(a==='sDel'){const id=ui.edit&&ui.edit.id;if(!id)return;if(ui.armed==='sdel'){ui.armed=null;sfx('delete');del('sleep',id);ui.edit=null;closeSheet();toast('Noche borrada')}else{ui.armed='sdel';b.textContent='¿Borrar? Toca otra vez';b.classList.add('armed')}}
   else if(a==='medit'){ui.armed=null;ui.edit={k:'m',id:b.dataset.id};openSheet('moneyedit')}
   else if(a==='mDel'){const id=ui.edit&&ui.edit.id;if(!id)return;if(ui.armed==='mdel'){ui.armed=null;sfx('delete');del('money',id);closeSheet();toast('Movimiento borrado')}else{ui.armed='mdel';b.textContent='¿Borrar? Toca otra vez';b.classList.add('armed')}}
   else if(a==='mcf'){ui.mcf=ui.mcf===b.dataset.v?'':b.dataset.v;ui.mAll=false;renderDyn()}
@@ -2421,7 +2441,8 @@ document.addEventListener('click',e=>{
   else if(a==='prog'){const r=S.resources[b.dataset.id];if(!r)return;const p=Math.min(100,(+r.progress||0)+10);put('resources',b.dataset.id,{...r,progress:p,status:p>=100?'terminado':'en curso'})}
   else if(a==='clearEx'){COLS.forEach(c=>Object.entries(S[c]).forEach(([id,v])=>{if(v&&v.ex)del(c,id)}));toast('Ejemplos borrados')}
 });
-document.addEventListener('input',e=>{if(e.target.id==='rpIn'){const o=document.getElementById('rpOut');if(o)o.textContent=e.target.value+' %'}
+document.addEventListener('input',e=>{const sf=e.target.closest&&e.target.closest('form[data-form=sleep]');if(sf&&(e.target.name==='bed'||e.target.name==='wake')){const d=document.getElementById('slDur');if(d&&sf.bed.value&&sf.wake.value)d.textContent=fmtH(sleepHours(sf.bed.value,sf.wake.value))}
+  if(e.target.id==='rpIn'){const o=document.getElementById('rpOut');if(o)o.textContent=e.target.value+' %'}
   if(e.target.id==='tn-title'){const pv=document.getElementById('tnPrev');if(pv)pv.innerHTML=e.target.value.trim()?taskPreview(e.target.value):''}});
 document.addEventListener('change',e=>{const ck=e.target.dataset&&e.target.dataset.cfg;if(ck){let v=e.target.value.trim();if(ck==='budget')v=Math.max(0,Math.round(+v||0));else if(ck==='currency'){if(!v)return;v=v.slice(0,4)}put('config','main',{...S.config,[ck]:v,curV:2});toast('Guardado');return}
   if(e.target.id==='svol'){const v=+e.target.value;lsSet('jl-svol',String(v));put('config','main',{...S.config,soundVol:v});sfx('check');return}
@@ -2449,7 +2470,7 @@ document.addEventListener('submit',e=>{
   else if(k==='moneyedit'){const r=S.money[ui.edit.id];const amt=Math.round(+v.amount*100)/100;if(!(amt>0)){toast('Escribe una cantidad mayor que cero');return}if(r){put('money',ui.edit.id,{...r,amount:amt,category:v.category,date:v.date||r.date,note:(v.note||'').trim()});closeSheet();toast('Movimiento actualizado')}}
   else if(k==='habitslot'){const h=S.habits[ui.edit.id];const days=new FormData(f).getAll('days').map(Number);if(!days.length){toast('Elige al menos un día');return}if(h){const name=(v.name||'').trim()||h.name;put('habits',ui.edit.id,{...h,name,time:v.time||'',dur:+v.dur||30,days,goal:days.length});closeSheet();toast('Hábito actualizado')}}
   else if(k==='habit'){const days=new FormData(f).getAll('days').map(Number);if(!days.length){toast('Elige al menos un día');return}put('habits',uid(),{name:v.name.trim(),goal:days.length,days,time:v.time||'',dur:+v.dur||30,created:new Date().toISOString()});f.reset();toast('Hábito añadido')}
-  else if(k==='sleep'){put('sleep',v.date,{bed:v.bed,wake:v.wake,quality:+v.quality,note:v.note.trim()});f.note.value='';showDate(v.date);toast(`Noche guardada: ${fmtH(sleepHours(v.bed,v.wake))}`)}
+  else if(k==='sleep'){if(v.orig&&v.orig!==v.date&&S.sleep[v.orig])del('sleep',v.orig);put('sleep',v.date,{bed:v.bed,wake:v.wake,quality:+v.quality,note:v.note.trim()});f.note.value='';ui.edit=null;if(f.closest('#sheet'))closeSheet();showDate(v.date);toast(`Noche guardada: ${fmtH(sleepHours(v.bed,v.wake))}`)}
   else if(k==='money'){const amt=Math.round(+v.amount*100)/100;if(!(amt>0)){toast('Escribe una cantidad mayor que cero');return}
     put('money',uid(),{date:v.date,type:ui.moneyType,amount:amt,category:v.category,note:v.note.trim()});f.amount.value='';f.note.value='';showDate(v.date);toast((ui.moneyType==='gasto'?'Gasto':'Ingreso')+' guardado')}
   else if(k==='learn'){put('learn',uid(),{date:v.date,minutes:+v.minutes,topic:v.topic.trim(),area:v.area.trim(),note:v.note.trim()});f.topic.value='';f.note.value='';ui.prefillMin=0;ui.prefillTopic='';if(f.closest('#sheet'))closeSheet();showDate(v.date);toast('Sesión guardada · '+fmtMin(+v.minutes))}
