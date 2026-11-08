@@ -90,11 +90,11 @@ textarea{resize:vertical;min-height:60px}
 .row .s{font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}
 .chk{width:28px;height:28px;border-radius:8px;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;color:var(--on-accent);flex:none;padding:0}
 .chk.on{background:var(--hab);border-color:var(--hab)}
-.chk.on::after{content:"";width:10px;height:6px;border-left:2.5px solid var(--on-accent);border-bottom:2.5px solid var(--on-accent);transform:rotate(-45deg) translate(1px,-1px)}
+.chk .tk{width:72%;height:72%;fill:none;stroke:var(--on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;opacity:0;pointer-events:none}
+.chk.on .tk{stroke-dashoffset:0;opacity:1}
 .week{display:flex;gap:4px}
 .day{display:grid;gap:2px;justify-items:center;font-size:.65rem;color:var(--muted)}
 .day .chk{width:24px;height:24px;border-radius:6px}
-.day .chk.on::after{width:8px;height:5px}
 .scrollx{overflow-x:auto;min-width:0}
 .heat{display:grid;grid-auto-flow:column;grid-auto-columns:14px;gap:3px;padding-bottom:2px}
 .heat i{width:14px;height:14px;border-radius:3px;background:var(--sunk);display:block}
@@ -670,10 +670,21 @@ body.n-full-note .n-tb{justify-content:center}
   @keyframes jlGrowX{from{transform:scaleX(0)}}
   .wbf.grow{transform-origin:bottom;animation:jlGrowY .42s var(--e-out) both}
   @keyframes jlGrowY{from{transform:scaleY(0)}}
-  .chk.on.just,button.cal.on.just{animation:jlpop .32s var(--e-spring)}
+  button.cal.on.just{animation:jlpop .32s var(--e-spring)}
   .chk,button.cal{position:relative}
-  .chk.on.just::after,button.cal.on.just::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid var(--hab,var(--accent));pointer-events:none;animation:jlRipple .65s var(--e-out) forwards}
-  .chk.round.on.just::after{border-color:var(--accent)}
+  button.cal.on.just::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid var(--hab,var(--accent));pointer-events:none;animation:jlRipple .65s var(--e-out) forwards}
+  /* marcar: se rellena desde los bordes, rebota, el tic se dibuja a trazo y saltan chispas */
+  .chk.on.just{animation:jlChkFill .34s cubic-bezier(.4,0,.2,1) calc(0ms + var(--jd,0ms)) both,jlChkPop .5s var(--e-spring) calc(0ms + var(--jd,0ms)) both}
+  .chk.on.just .tk{animation:jlTick .34s cubic-bezier(.65,0,.35,1) calc(150ms + var(--jd,0ms)) both}
+  .chk.on.just::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid var(--hab);pointer-events:none;animation:jlRipple .6s var(--e-out) calc(120ms + var(--jd,0ms)) both}
+  .chk.on.just::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;pointer-events:none;color:var(--hab);filter:drop-shadow(0 0 4px var(--glow));animation:jlSpark .6s var(--e-out) calc(140ms + var(--jd,0ms)) both}
+  .chk.just:not(.on){animation:jlChkOff .28s var(--e-out) var(--jd,0ms) both}
+  @keyframes jlChkFill{from{background-color:transparent;box-shadow:inset 0 0 0 0 var(--hab)}to{background-color:transparent;box-shadow:inset 0 0 0 16px var(--hab)}}
+  @keyframes jlChkPop{0%{transform:scale(.82)}55%{transform:scale(1.14)}100%{transform:none}}
+  @keyframes jlTick{0%{stroke-dashoffset:20;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+  @keyframes jlSpark{0%{opacity:0;box-shadow:0 -8px 0 1px,7px -4px 0 1px,7px 4px 0 1px,0 8px 0 1px,-7px 4px 0 1px,-7px -4px 0 1px}10%{opacity:1}
+    70%{opacity:1}100%{opacity:0;box-shadow:0 -27px 0 -1px,23px -13px 0 -1px,23px 13px 0 -1px,0 27px 0 -1px,-23px 13px 0 -1px,-23px -13px 0 -1px}}
+  @keyframes jlChkOff{0%{transform:scale(.88)}100%{transform:none}}
   @keyframes jlRipple{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(2.3)}}
   .ring.flash .rw{animation:jlFlash 1s var(--e-out)}
   @keyframes jlFlash{0%{transform:scale(1)}30%{transform:scale(1.14);filter:drop-shadow(0 0 18px var(--glow))}100%{transform:none;filter:none}}
@@ -1094,6 +1105,7 @@ const calm=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: re
 const entering=()=>Date.now()-(ui.enterT||0)<450;
 const justDid=(k,id)=>ui.just&&ui.just.k===k&&ui.just.id===id&&Date.now()-ui.just.t<900;
 function markJust(k,id){ui.just={k,id,t:Date.now()}}
+const jd=()=>` style="--jd:-${Math.max(0,Date.now()-((ui.just&&ui.just.t)||Date.now()))}ms"`;
 // números que cuentan desde cero al entrar en una sección
 function countUp(el,from){if(calm()||(el.dataset.counted&&from===undefined))return;const txt=el.textContent;if(/:/.test(txt))return;el.dataset.counted='1';
   const parts=[];txt.replace(/(^|[^\d])(\d+(?:\.\d{3})*(?:,\d+)?)/g,(m,pre,num,off)=>{parts.push({num,at:off+pre.length,after:txt[off+pre.length-1]==='/'})});
@@ -1168,7 +1180,7 @@ function ring(p,val,label,sub,aria){const C=2*Math.PI*27,d=(C*Math.max(0,Math.mi
 const streakPill=(n,bump)=>`<span class="streak${n?'':' zero'}${bump?' bump':''}" title="Racha: ${dias(n)}">${svg(IC.flame)}${n}</span>`;
 function habitRow(h,d){const on=doneOn(d,h.id);
   const j=justDid('h',h.id+'|'+d);
-  return `<div class="row" data-fk="h${esc(h.id)}"><button class="chk ${on?'on':''}${j?' just':''}" data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}" aria-pressed="${on}"></button><div class="grow t-open" data-act="habSched" data-id="${esc(h.id)}" role="button" tabindex="0" title="Editar hábito"><div class="t">${esc(h.name)}${exTag(h)}</div></div>${h.time?`<span class="pill tm">${h.time}</span>`:''}${streakPill(streak(h.id),j&&on)}</div>`}
+  return `<div class="row" data-fk="h${esc(h.id)}"><button class="chk ${on?'on':''}${j?' just':''}"${j?jd():''} data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}" aria-pressed="${on}"><svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.6l3.9 3.9L18.2 8" pathLength="20"/></svg></button><div class="grow t-open" data-act="habSched" data-id="${esc(h.id)}" role="button" tabindex="0" title="Editar hábito"><div class="t">${esc(h.name)}${exTag(h)}</div></div>${h.time?`<span class="pill tm">${h.time}</span>`:''}${streakPill(streak(h.id),j&&on)}</div>`}
 function perfectDays(p){const hs=habitsSorted();return hs.length?elapsedOf(p).filter(d=>hs.every(h=>doneOn(d,h.id))).length:0}
 function perfectBanner(){const t=today(),hs=habitsSorted();if(!hs.length||!hs.every(h=>doneOn(t,h.id)))return '';
   const n=perfectDays(periodAt(t,'mes'));
@@ -1223,7 +1235,7 @@ function taskRow(r,o={}){const t=today(),over=!r.done&&r.date&&r.date<t,meta=[],
   if(!r.done){if(r.date!==t)acts.push(`<button class="btn sm ghost" data-act="tmove" data-to="hoy" data-id="${esc(r.id)}">Hoy</button>`);
     if(!r.date||r.date<=t)acts.push(`<button class="btn sm ghost hide-touch" data-act="tmove" data-to="manana" data-id="${esc(r.id)}">Mañana</button>`)}
   const jt=justDid('t',r.id);
-  const row=`<div class="row task${r.done?' done':''}${jt?' just':''}"><button class="chk round ${r.done?'on':''}${jt?' just':''}" data-act="ttog" data-id="${esc(r.id)}" aria-label="${r.done?'Desmarcar':'Marcar como hecha'}: ${esc(r.title)}" aria-pressed="${!!r.done}"></button>
+  const row=`<div class="row task${r.done?' done':''}${jt?' just':''}"><button class="chk round ${r.done?'on':''}${jt?' just':''}"${jt?jd():''} data-act="ttog" data-id="${esc(r.id)}" aria-label="${r.done?'Desmarcar':'Marcar como hecha'}: ${esc(r.title)}" aria-pressed="${!!r.done}"><svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.6l3.9 3.9L18.2 8" pathLength="20"/></svg></button>
     <div class="grow t-open" data-act="tedit" data-id="${esc(r.id)}" role="button" tabindex="0" title="Editar tarea"><div class="t">${esc(r.title)}${exTag(r)}</div>${meta.length?`<div class="s">${meta.join(' ')}</div>`:''}</div>
     ${o.compact?'':`<div class="tacts">${acts.join('')}${delBtn('tasks',r.id)}</div>`}</div>`;
   return `<div class="swrap" data-fk="t${esc(r.id)}" data-swipe="${esc(r.id)}" data-done="${r.done?1:0}"><div class="swbg" aria-hidden="true"><span class="sl">${svg(IC.check)}${r.done?'Pendiente':'Hecha'}</span><span class="sr">Mañana${svg(IC.arrow)}</span></div>${row}</div>`}
