@@ -816,6 +816,18 @@ a.btn{text-decoration:none}
 .tn-p i{display:block;height:7px;border-radius:4px}.tn-p i+i{width:60%}
 .tone.on{color:var(--ink)}.tone.on .tn-p{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}.tone:active .tn-p{transform:scale(.94)}
 .sw-hint{flex-wrap:nowrap!important;align-items:flex-start}
+.n-ehd{position:relative;flex-wrap:nowrap}
+.n-back{min-width:0;flex:0 1 auto}.n-back #nBackLbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(52vw,16em)}
+.n-eacts{margin-left:auto;flex:none}
+.n-menu{position:absolute;right:10px;top:calc(100% - 4px);z-index:20;min-width:250px;display:grid;gap:2px;padding:6px;border-radius:16px;border:1px solid var(--line);background:var(--surface2);box-shadow:0 18px 50px -12px rgba(0,0,0,.6)}
+:root[data-mode="light"] .n-menu{box-shadow:0 18px 50px -14px rgba(15,15,30,.3)}
+@media (prefers-reduced-motion:no-preference){.n-menu:not([hidden]){animation:jlMenu .18s var(--e-out)}}
+@keyframes jlMenu{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.n-mi{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;color:var(--ink);font:500 .9rem var(--f-body);padding:9px 10px;border-radius:10px;cursor:pointer;text-align:left;box-sizing:border-box}
+.n-mi>span{display:flex;align-items:center;gap:10px}.n-mi .ic{width:17px;height:17px;color:var(--muted)}
+.n-mi:hover{background:var(--glow-soft)}.n-mi.bad,.n-mi.bad .ic{color:var(--bad)}.n-mi.armed{background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.n-mi select{max-width:120px;padding:6px 8px;border-radius:9px;font-size:.85rem}
+@media (max-width:899px){body.n-editing header.top,body.n-editing #subnav,body.n-editing #tabs{display:none}body.n-editing .wrap{padding-top:6px}}
 .aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
@@ -1947,17 +1959,25 @@ function notesRefresh(){const app=document.getElementById('notesApp');if(!app)re
   const fTags=[...new Set(inF.flatMap(n=>noteInfo(n).tags))].sort();if(NT.tag&&!fTags.includes(NT.tag)&&!allTags.includes(NT.tag))NT.tag='';
   document.getElementById('nTagbar').innerHTML=fTags.length?tagChip('',!NT.tag,'nTag')+fTags.map(t=>tagChip(t,NT.tag===t,'nTag')).join(''):'';
   const ns=notesIn(),box=document.getElementById('nNotes');box.className='n-notes '+(NT.view==='list'?'is-list':'is-grid')+(Date.now()-(NT.casc||0)<300&&!calm()?' casc':'');
-  box.innerHTML=ns.length?ns.map(noteCard).join(''):`<div class="n-none">${NT.q||NT.tag?'No hay notas que coincidan.':'Esta carpeta está vacía.'}<button class="btn sm" data-act="nNew">${svg(IC.compose)}Nueva nota</button></div>`;
+  const sig=NT.view+'|'+NT.note+'|'+ns.map(x=>x.id+(x.id===NT.note?'':':'+x.updated+(x.pinned?'p':''))).join(',');
+  const listHidden=NT.level==='editor'&&window.matchMedia('(max-width:899px)').matches;
+  if(sig===box.dataset.sig&&NT.note){const cur=ns.find(x=>x.id===NT.note),el=cur&&box.querySelector(`[data-act=nOpen][data-id="${CSS.escape(NT.note)}"]`);if(el&&!listHidden){const t=document.createElement('template');t.innerHTML=noteCard(cur).trim();el.replaceWith(t.content.firstChild)}}
+  else if(listHidden){box.dataset.sig=''}
+  else{box.dataset.sig=sig;box.innerHTML=ns.length?ns.map(noteCard).join(''):`<div class="n-none">${NT.q||NT.tag?'No hay notas que coincidan.':'Esta carpeta está vacía.'}<button class="btn sm" data-act="nNew">${svg(IC.compose)}Nueva nota</button></div>`}
   // editor
   const ed=document.getElementById('nEd'),n=NT.note&&S.notes[NT.note]?{...S.notes[NT.note],id:NT.note}:null;
   document.getElementById('nEmpty').hidden=!!n;ed.hidden=!n;document.getElementById('nTb').hidden=!n;document.getElementById('nInfo').hidden=!n;if(!n)document.getElementById('nTbl').hidden=true;
   document.getElementById('nMeta').textContent=n?'Editada '+noteDate(n.updated).replace(/^(\d)/,'a las $1'):'';
   const fa=document.getElementById('nFullApp');if(fa){const on=NT.full==='app';fa.classList.toggle('on',on);fa.setAttribute('aria-pressed',on);fa.innerHTML=svg(on?IC.collapse:IC.expand);fa.title=fa.ariaLabel=on?'Salir de pantalla completa':'Notas a pantalla completa'}
-  document.getElementById('nActs').innerHTML=n?`<button class="n-ic${NT.full==='note'?' on':''}" data-act="nFull" data-m="note" aria-pressed="${NT.full==='note'}" aria-label="${NT.full==='note'?'Salir de pantalla completa':'Nota a pantalla completa'}" title="${NT.full==='note'?'Salir de pantalla completa (Esc)':'Nota a pantalla completa'}">${svg(NT.full==='note'?IC.collapse:IC.expand)}</button>
-    <button class="n-sess" data-act="nSession" title="Apuntar en Estudio el tiempo dedicado a esta nota">${svg(IC.clock)}<span>Registrar sesión</span></button>
-    <select id="nMove" aria-label="Carpeta de la nota"><option value="">Sin carpeta</option>${fs.map(f=>`<option value="${esc(f.id)}"${n.folder===f.id?' selected':''}>${esc(f.name)}</option>`).join('')}</select>
-    <button class="n-ic${n.pinned?' on':''}" data-act="nPin" aria-pressed="${!!n.pinned}" aria-label="${n.pinned?'Desfijar':'Fijar arriba'}" title="${n.pinned?'Desfijar':'Fijar arriba'}">${svg(IC.pin)}</button>
-    <button class="n-ic${ui.armed==='note/'+n.id?' armed':''}" data-act="nDel" aria-label="Borrar nota" title="Borrar nota">${ui.armed==='note/'+n.id?'<span style="font-size:.8rem;font-weight:600">¿Borrar?</span>':svg(IC.trash)}</button>`:'';
+  document.getElementById('nActs').innerHTML=n?`<button class="n-ic${n.pinned?' on':''}" data-act="nPin" aria-pressed="${!!n.pinned}" aria-label="${n.pinned?'Desfijar':'Fijar arriba'}" title="${n.pinned?'Desfijar':'Fijar arriba'}">${svg(IC.pin)}</button>
+    <button class="n-ic${NT.full==='note'?' on':''}" data-act="nFull" data-m="note" aria-pressed="${NT.full==='note'}" aria-label="${NT.full==='note'?'Salir de pantalla completa':'Nota a pantalla completa'}" title="${NT.full==='note'?'Salir de pantalla completa (Esc)':'Nota a pantalla completa'}">${svg(NT.full==='note'?IC.collapse:IC.expand)}</button>
+    <button class="n-ic${NT.menu?' on':''}" data-act="nMenu" aria-expanded="${!!NT.menu}" aria-label="Más opciones" title="Más opciones">${svg(IC.dots)}</button>
+    <div class="n-menu" id="nMenuPop"${NT.menu?'':' hidden'} role="menu">
+      <label class="n-mi"><span>${svg(IC.folder)}Carpeta</span><select id="nMove" aria-label="Carpeta de la nota"><option value="">Sin carpeta</option>${fs.map(f=>`<option value="${esc(f.id)}"${n.folder===f.id?' selected':''}>${esc(f.name)}</option>`).join('')}</select></label>
+      <button class="n-mi" data-act="nSession" role="menuitem"><span>${svg(IC.clock)}Registrar sesión de estudio</span></button>
+      <button class="n-mi" data-act="nCopy" role="menuitem"><span>${svg(IC.copy)}Copiar el texto</span></button>
+      <button class="n-mi bad${ui.armed==='note/'+n.id?' armed':''}" data-act="nDel" role="menuitem"><span>${svg(IC.trash)}${ui.armed==='note/'+n.id?'¿Borrar? Toca otra vez':'Borrar nota'}</span></button>
+    </div>`:'';
   if(n&&ed.dataset.id!==n.id){ed.innerHTML=cleanHTML(n.html);ed.dataset.id=n.id;ed.dataset.v=n.updated||''}
   else if(n&&ed.dataset.v!==(n.updated||'')&&!NT.dirty&&document.activeElement!==ed){ed.innerHTML=cleanHTML(n.html);ed.dataset.v=n.updated||''}
   if(!n){ed.dataset.id='';ed.innerHTML=''}
@@ -2010,7 +2030,7 @@ function saveNote(){clearTimeout(NT.saveT);if(!NT.note||!NT.dirty)return;const e
   NT.dirty=false;ed.dataset.v=now;put('notes',NT.note,{...n,html,title:title.slice(0,90),updated:now});
   const sv=document.getElementById('nSaved');if(sv){sv.classList.remove('show');void sv.offsetWidth;sv.classList.add('show');clearTimeout(NT.svT);NT.svT=setTimeout(()=>sv.classList.remove('show'),1400)}}
 function noteChanged(){NT.dirty=true;clearTimeout(NT.saveT);NT.saveT=setTimeout(saveNote,700)}
-function openNote(id,focus){if(NT.dirty)saveNote();NT.note=id;ui.armed=null;setLevel('editor');notesRefresh();
+function openNote(id,focus){if(NT.dirty)saveNote();NT.note=id;NT.menu=false;ui.armed=null;setLevel('editor');notesRefresh();
   const ed=document.getElementById('nEd');if(focus&&ed){ed.focus();const r=document.createRange();r.selectNodeContents(ed.firstElementChild||ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}
   if(window.matchMedia('(max-width:899px)').matches)window.scrollTo(0,0)}
 // animación al abrir: la tarjeta crece hasta convertirse en la nota y el contenido entra en cascada
@@ -2086,7 +2106,7 @@ document.addEventListener('mousedown',e=>{if(e.target.closest('#nTb button,#nTbl
 document.addEventListener('input',e=>{if(e.target.id==='nEd'){noteChanged();requestAnimationFrame(caretVisible);const n=S.notes[NT.note];if(n){clearTimeout(NT.infoT);NT.infoT=setTimeout(()=>{const ed=document.getElementById('nEd');if(ed)renderInfo({...n,id:'_live',updated:'_'+Date.now(),html:ed.innerHTML,folder:n.folder})},400)}}
   else if(e.target.id==='nq'){NT.q=e.target.value;notesRefresh()}});
 document.addEventListener('change',e=>{
-  if(e.target.id==='nMove'&&NT.note&&S.notes[NT.note]){if(NT.dirty)saveNote();put('notes',NT.note,{...S.notes[NT.note],folder:e.target.value});toast(e.target.value?'Movida a '+folderName(e.target.value):'Nota sin carpeta')}
+  if(e.target.id==='nMove'&&NT.note&&S.notes[NT.note]){NT.menu=false;if(NT.dirty)saveNote();put('notes',NT.note,{...S.notes[NT.note],folder:e.target.value});toast(e.target.value?'Movida a '+folderName(e.target.value):'Nota sin carpeta')}
   else if(e.target.id==='nRename'&&S.folders[NT.folder]){const v=e.target.value.trim();if(v){e.target.blur();put('folders',NT.folder,{...S.folders[NT.folder],name:v});toast('Carpeta renombrada')}}});
 document.addEventListener('keydown',e=>{const ed=e.target.id==='nEd'?e.target:null;if(!ed)return;
   if(e.key!=='Enter')NT.preEnter=0;
@@ -2197,6 +2217,8 @@ const THEMES=[['auto','Automático'],['light','Claro'],['dark','Oscuro']];
 IC.sync='<path d="M20 11a8 8 0 0 0-14.5-4.5M4 4v3.5h3.5M4 13a8 8 0 0 0 14.5 4.5M20 20v-3.5h-3.5"/>';
 IC.bell='<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>';
 IC.phone='<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>';
+IC.dots='<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>';
+IC.copy='<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>';
 IC.play='<path d="M8 5.5v13l10.5-6.5z"/>';
 IC.sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>';
 IC.moonS='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
@@ -2280,6 +2302,7 @@ const fromHash=()=>go((location.hash||'#resumen').slice(1));
 window.addEventListener('hashchange',fromHash);
 
 document.addEventListener('click',e=>{
+  if(typeof NT!=='undefined'&&NT.menu&&!e.target.closest('#nMenuPop,[data-act=nMenu]')){NT.menu=false;const m=document.getElementById('nMenuPop');if(m)m.hidden=true;const mb=document.querySelector('[data-act=nMenu]');if(mb){mb.classList.remove('on');mb.setAttribute('aria-expanded','false')}}
   if(e.target.id==='sheet'){closeSheet();return}
   if(Date.now()-(ui.dragAt||0)<400&&e.target.closest('.cal-col')){return}
   const cc=e.target.closest('.cal-col');if(cc&&!e.target.closest('.ev')){const y=e.clientY-cc.getBoundingClientRect().top,m=Math.max(0,Math.min(1425,(+cc.dataset.from||0)+Math.floor(y/(+cc.dataset.h||CAL.H)*60/15)*15));ui.prefill={date:cc.dataset.d,time:fromMin(m)};openSheet('tarea');return}
@@ -2318,7 +2341,9 @@ document.addEventListener('click',e=>{
   else if(a==='nColor'&&S.folders[NT.folder]){put('folders',NT.folder,{...S.folders[NT.folder],color:b.dataset.c})}
   else if(a==='nIcon'&&S.folders[NT.folder]){put('folders',NT.folder,{...S.folders[NT.folder],icon:b.dataset.i})}
   else if(a==='nDone'){if(document.activeElement)document.activeElement.blur();saveNote()}
-  else if(a==='nSession'){const n=S.notes[NT.note];if(!n)return;if(NT.dirty)saveNote();openSheet('estudio');setTimeout(()=>{const t=document.querySelector('#sheet input[name=topic]'),ar=document.querySelector('#sheet input[name=area]');if(t)t.value=n.title||'';if(ar)ar.value=folderName(n.folder)},30)}
+  else if(a==='nMenu'){NT.menu=!NT.menu;const m=document.getElementById('nMenuPop');if(m)m.hidden=!NT.menu;b.classList.toggle('on',NT.menu);b.setAttribute('aria-expanded',NT.menu)}
+  else if(a==='nCopy'){const ed=document.getElementById('nEd');NT.menu=false;try{navigator.clipboard.writeText((ed&&ed.innerText)||'').then(()=>toast('Texto copiado'),()=>toast('No se pudo copiar'))}catch(_){toast('No se pudo copiar')}notesRefresh()}
+  else if(a==='nSession'){NT.menu=false;const n=S.notes[NT.note];if(!n)return;if(NT.dirty)saveNote();openSheet('estudio');setTimeout(()=>{const t=document.querySelector('#sheet input[name=topic]'),ar=document.querySelector('#sheet input[name=area]');if(t)t.value=n.title||'';if(ar)ar.value=folderName(n.folder)},30)}
   else if(a==='nNew')newNote();
   else if(a==='nBack'){if(NT.dirty)saveNote();if(NT.full==='note')setFull('');if(b.dataset.to==='list'){NT.note=null}setLevel(b.dataset.to);notesRefresh()}
   else if(a==='nPin'){const n=S.notes[NT.note];if(n){if(NT.dirty)saveNote();put('notes',NT.note,{...S.notes[NT.note],pinned:!n.pinned});toast(n.pinned?'Nota desfijada':'Nota fijada arriba')}}
