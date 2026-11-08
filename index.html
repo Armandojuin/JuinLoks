@@ -277,7 +277,7 @@ body.noscroll{overflow:hidden}
 .swrap:not(.dragging) .row{transition:transform .2s ease}
 
 /* hábitos: calendario */
-.hgrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));align-items:start}
+.hgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));align-items:start}
 .calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 .wd{font-size:.68rem;color:var(--muted);text-align:center;font-weight:600}
 .cal{aspect-ratio:1;border-radius:8px;border:0;background:var(--sunk);color:var(--muted);font:500 .72rem var(--f-mono);cursor:pointer;padding:0;min-height:32px}
@@ -788,6 +788,23 @@ body.n-full-note .n-tb{justify-content:center}
 a.btn{text-decoration:none}
 .t-open{cursor:pointer;border-radius:8px}.t-open:hover .t{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}.t-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .agenda .btn .ic{width:15px;height:15px}
+.tstrip.hstrip{grid-template-columns:repeat(3,minmax(0,1fr))}.hstrip>div{display:grid;justify-items:center;gap:2px;padding:10px 4px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(160deg,var(--surface2),var(--surface));color:var(--muted);font:500 .72rem var(--f-body)}
+.hstrip>div b{font:700 1.15rem/1.1 var(--f-display);color:var(--ink);letter-spacing:-.02em}
+.hchips{display:flex;flex-wrap:wrap;gap:8px}
+.hchip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 7px;border-radius:99px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:600 .92rem var(--f-body);cursor:pointer;transition:background .25s,border-color .25s,transform .12s var(--e-out)}
+.hchip .chk{width:26px;height:26px;border-radius:50%;pointer-events:none}
+.hchip.on{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--glow-soft)}
+.hchip.on .hc-n{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 60%,transparent)}
+.hchip:active{transform:scale(.96)}.hc-t{font:500 .72rem var(--f-mono);color:var(--muted)}
+.hcard{gap:12px}.hc-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hc-tt{min-width:0;display:grid;gap:2px}.hc-tt h2{margin:0;font-size:1.08rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hc-tt .muted{font-size:.8rem}
+.hc-pr{display:flex;align-items:center;gap:12px}.hc-big{font:700 1.6rem/1 var(--f-display);letter-spacing:-.04em}.hc-big small{font-size:.5em;color:var(--muted)}
+.hc-bar{flex:1;display:grid;gap:4px;font-size:.78rem}.hc-bar .track{height:6px}
+.calgrid .cal.rest{opacity:.35}.calgrid .cal.out{opacity:.45}
+.calgrid.wk .cal{min-height:38px;font-size:.8rem}
+.hc-more{display:inline-flex;align-items:center;gap:4px;justify-self:start;border:0;background:none;color:var(--muted);font:600 .8rem var(--f-body);cursor:pointer;padding:2px 0}
+.hc-more .ic{width:14px;height:14px;transform:rotate(-90deg);transition:transform .25s var(--e-out)}.hc-more .ic.up{transform:rotate(90deg)}.hc-more:hover{color:var(--ink)}
+.hnew{justify-self:center}
 .qbar{display:grid;gap:8px}
 @media (max-width:520px){.apl-l{display:none}.tv-bar{flex-wrap:nowrap!important}}
 .qbar-in{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(160deg,var(--surface2),var(--surface));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:border-color .2s,box-shadow .2s}
@@ -1472,23 +1489,30 @@ V.habitos={form:()=>'',
 dyn(){
   const p=P(),t=today(),hst=habitStats(p),hs=hst.hs;
   if(!hs.length)return habitEmpty();
-  const ds=datesOf(p),off=(parse(p.s).getDay()+6)%7,month=p.days>7;
-  const info=hs.map(h=>{const c=ds.filter(d=>doneOn(d,h.id)).length,target=Math.max(1,scaled(+h.goal||7,p));return{h,c,target,pct:Math.round(c/target*100)}});
-  const best=Math.max(0,...hs.map(h=>streak(h.id)));
-  const cell=(h,d)=>{const on=doneOn(d,h.id),fut=d>t;return `<button class="cal${on?' on':''}${d===t?' today':''}${justDid('h',h.id+'|'+d)?' just':''}" data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${esc(h.name)}, ${shortDate(d)}" aria-pressed="${on}"${fut?' disabled':''}>${parse(d).getDate()}</button>`};
-  return `<div class="hintbar"><span>Toca un día para marcarlo o desmarcarlo.</span><button class="btn sm" data-act="sheet" data-k="habito">${svg(IC.plus)}Nuevo hábito</button></div>
-  ${isCurrent()?perfectBanner():''}
-  <div class="grid">
-    ${tile('Cumplimiento · '+pword(),hst.pct+'%',`${hst.marks} de ${hst.possible} marcas posibles`)}
-    ${tile('Días perfectos',`${hst.perfect}/${hst.el.length}`,'Días con todos los hábitos hechos')}
-    ${tile('Mejor racha actual',dias(best),`${info.filter(i=>i.c>=i.target).length} de ${hs.length} con la meta cumplida`)}
-  </div>
-  <div class="hgrid">${info.map(({h,c,target,pct})=>`<section class="panel" aria-label="${esc(h.name)}">
-    <div class="hd"><div style="min-width:0"><h2>${esc(h.name)}${exTag(h)}</h2><span class="muted" style="font-size:.85rem">${c} de ${target} días · ${h.time?'a las '+h.time:'sin hora'} · ${habitDays(h).length===7?'todos los días':habitDays(h).map(x=>WD.find(w=>+w[0]===x)[1]).join(' ')}</span></div>
-      <div class="hcount"><button class="n-ic" data-act="habSched" data-id="${esc(h.id)}" aria-label="Editar ${esc(h.name)}" title="Editar hábito">${svg(IC.edit)}</button>${streakPill(streak(h.id))}${delBtn('habits',h.id)}</div></div>
-    <div class="calgrid">${['L','M','X','J','V','S','D'].map(x=>`<span class="wd">${x}</span>`).join('')}${month?'<span></span>'.repeat(off):''}${ds.map(d=>cell(h,d)).join('')}</div>
-    <div class="bar" style="grid-template-columns:1fr auto"><div class="track"><div class="fill" style="width:${Math.min(100,pct)}%"></div></div><span class="num">${pct}%</span></div>
-  </section>`).join('')}</div>`;
+  const ds=datesOf(p),off=(parse(p.s).getDay()+6)%7,month=p.days>7,cur=isCurrent(),el=new Set(hst.el);
+  // progreso justo: sobre los días que tocaban y ya han pasado (no sobre todo el mes)
+  const info=hs.map(h=>{const due=hst.el.filter(d=>habitOn(h,d)),c=ds.filter(d=>doneOn(d,h.id)).length,cd=due.filter(d=>doneOn(d,h.id)).length;return{h,c,due:due.length,pct:due.length?Math.round(cd/due.length*100):0,st:streak(h.id)}});
+  const best=Math.max(0,...info.map(i=>i.st));
+  const cell=(h,d,inP=true)=>{const on=doneOn(d,h.id),fut=d>t,off2=!habitOn(h,d);return `<button class="cal${on?' on':''}${d===t?' today':''}${off2&&!on?' rest':''}${inP?'':' out'}${justDid('h',h.id+'|'+d)?' just':''}" data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${esc(h.name)}, ${shortDate(d)}" aria-pressed="${on}"${fut?' disabled':''}>${parse(d).getDate()}</button>`};
+  const wk=(()=>{const a=cur?t:(ds[ds.length-1]),s0=mondayOf(a);return [...Array(7)].map((_,i)=>addDays(s0,i))})();
+  const WDL=['L','M','X','J','V','S','D'];
+  const todayHs=hs.filter(h=>habitOn(h,t)),tdone=todayHs.filter(h=>doneOn(t,h.id));
+  const chip=h=>{const on=doneOn(t,h.id),j=justDid('h',h.id+'|'+t);return `<button class="hchip${on?' on':''}${j?' just':''}" data-fk="c${esc(h.id)}" data-act="tog" data-d="${t}" data-h="${h.id}" aria-pressed="${on}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}"><span class="chk${on?' on':''}${j?' just':''}"${j?jd():''}>${TKSVG}</span><span class="hc-n">${esc(h.name)}</span>${h.time?`<span class="hc-t">${h.time}</span>`:''}</button>`};
+  const card=({h,c,due,pct,st})=>{const open=!month||ui.hx===h.id||!cur;
+    return `<section class="panel hcard" aria-label="${esc(h.name)}">
+    <div class="hc-hd"><div class="hc-tt"><h2>${esc(h.name)}${exTag(h)}</h2><span class="muted">${h.time?h.time+' · ':''}${habitDays(h).length===7?'todos los días':habitDays(h).map(x=>WD.find(w=>+w[0]===x)[1]).join(' ')}</span></div>
+      <div class="hcount">${streakPill(st)}<button class="n-ic" data-act="habSched" data-id="${esc(h.id)}" aria-label="Editar ${esc(h.name)}" title="Editar hábito">${svg(IC.edit)}</button></div></div>
+    <div class="hc-pr"><span class="hc-big">${pct}<small>%</small></span><div class="hc-bar"><div class="track"><div class="fill" style="width:${Math.min(100,pct)}%"></div></div><span class="muted">${c} de ${due} ${due===1?'día':'días'} ${cur?'hasta hoy':''}</span></div></div>
+    ${open?`<div class="calgrid">${WDL.map(x=>`<span class="wd">${x}</span>`).join('')}${month?'<span></span>'.repeat(off):''}${ds.map(d=>cell(h,d)).join('')}</div>`
+      :`<div class="calgrid wk">${WDL.map(x=>`<span class="wd">${x}</span>`).join('')}${wk.map(d=>cell(h,d,el.has(d)||d>t)).join('')}</div>`}
+    ${month&&cur?`<button class="hc-more" data-act="hx" data-id="${esc(h.id)}" aria-expanded="${open}">${open?'Ver solo esta semana':'Ver todo el mes'}${svg(IC.chev,'ic'+(open?' up':''))}</button>`:''}
+  </section>`};
+  return `${cur?perfectBanner():''}
+  <div class="tstrip hstrip"><div><b>${hst.pct}%</b><span>cumplimiento</span></div><div><b>${hst.perfect}/${hst.el.length}</b><span>días perfectos</span></div><div><b>${best}</b><span>mejor racha</span></div></div>
+  ${cur&&todayHs.length?`<section class="panel htoday"><div class="hd"><h2>Hoy</h2><span class="muted">${tdone.length} de ${todayHs.length}</span></div>
+    <div class="hchips">${[...todayHs.filter(h=>!doneOn(t,h.id)),...tdone].map(chip).join('')}</div></section>`:''}
+  <div class="hgrid">${info.map(card).join('')}</div>
+  <button class="btn ghost hnew" data-act="sheet" data-k="habito">${svg(IC.plus)}Nuevo hábito</button>`;
 }};
 
 /* ---------- sueño ---------- */
@@ -1642,7 +1666,7 @@ const SHEETS={
     <div class="chips" role="group" aria-label="Qué días">${WD.map(([v,l])=>`<label class="chip num1"><input type="checkbox" name="days" value="${v}"${ds.includes(+v)?' checked':''}><span>${l}</span></label>`).join('')}</div>
     <div class="sh-row"><label class="fld">Hora<input type="time" name="time" value="${esc(h.time||'')}"></label><label class="fld">Duración<select name="dur">${DURS.map(([m,l])=>`<option value="${m}"${m===(+h.dur||30)?' selected':''}>${l}</option>`).join('')}</select></label></div>
     <button class="btn big" type="submit">Guardar cambios</button>
-    <div class="sh-btns"><button type="button" class="btn ghost" data-act="icsOne">${svg(IC.cal)}Calendario de Apple</button>${h.time?'<button type="button" class="btn ghost" data-act="habClear">Quitar la hora</button>':''}</div></form>`},
+    <div class="sh-btns"><button type="button" class="btn ghost" data-act="icsOne">${svg(IC.cal)}Calendario de Apple</button>${h.time?'<button type="button" class="btn ghost" data-act="habClear">Quitar la hora</button>':''}<button type="button" class="btn ghost" data-act="habDel">Borrar hábito</button></div></form>`},
   apple:()=>`<div class="sh-hd"><h2>Calendario de Apple</h2>${closeBtn()}</div>
     <section class="ap-opt"><h3>${svg(IC.cal)}Suscripción automática</h3><p class="muted">Tus tareas con fecha y tus hábitos con hora aparecen en un calendario «JuinLoks» en el iPhone y en el Mac, y se actualizan solos. Funciona en un sentido: los cambios se hacen en JuinLoks.</p><div id="feedBox" class="feed-box"><button class="btn" data-act="makeFeed">Crear enlace de suscripción</button></div></section>
     <section class="ap-opt"><h3>${svg(IC.plus)}Añadir ahora</h3><p class="muted">Manda tus hábitos con hora y tus próximas tareas como eventos, con un aviso 10 minutos antes. Si luego los cambias, vuelve a añadirlos.</p><button class="btn ghost" data-act="icsAll">Añadir todo al Calendario</button></section>`
@@ -2137,7 +2161,7 @@ document.addEventListener('click',e=>{
   const ntb=e.target.closest('[data-ntbl]');if(ntb){tableOp(ntb.dataset.ntbl);return}
   const nb=e.target.closest('[data-route]');if(nb){sfx('tap');let r=nb.dataset.route;if(r==='more')r=ui.lastMore||'sueno';if(location.hash!=='#'+r)location.hash=r;else go(r);return}
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
-  if(a==='tog'){b.classList.toggle('on');b.classList.add('just');markJust('h',b.dataset.h+'|'+b.dataset.d);const was=doneOn(b.dataset.d,b.dataset.h);sfx(was?'uncheck':'check');toggleHabit(b.dataset.d,b.dataset.h);const hs=habitsSorted();if(!was&&b.dataset.d===today()&&hs.length&&hs.every(h=>doneOn(today(),h.id))){toast('¡Día perfecto! Has completado todos tus hábitos de hoy');confetti()}}
+  if(a==='tog'){b.classList.toggle('on');b.classList.add('just');const ic=b.querySelector('.chk');if(ic){ic.classList.toggle('on',b.classList.contains('on'));ic.classList.add('just')}markJust('h',b.dataset.h+'|'+b.dataset.d);const was=doneOn(b.dataset.d,b.dataset.h);sfx(was?'uncheck':'check');toggleHabit(b.dataset.d,b.dataset.h);const hs=habitsSorted();if(!was&&b.dataset.d===today()&&hs.length&&hs.every(h=>doneOn(today(),h.id))){toast('¡Día perfecto! Has completado todos tus hábitos de hoy');confetti()}}
   else if(a==='sheet'&&b.dataset.k==='nota'){closeSheet();ui.ktab='notas';lsSet('jl-ktab','notas');if(location.hash!=='#conocimiento')history.replaceState(null,'','#conocimiento');go('conocimiento');newNote()}
   else if(a==='sheet')openSheet(b.dataset.k||'menu');
   else if(a==='ktab'){if(NT.dirty)saveNote();if(NT.full)setFull('');ui.ktab=b.dataset.t;lsSet('jl-ktab',ui.ktab);document.body.classList.remove('n-editing');renderStatic();document.getElementById('dyn').innerHTML='';renderDyn()}
@@ -2184,6 +2208,8 @@ document.addEventListener('click',e=>{
   else if(a==='fillHabit'){const i=document.getElementById('sh-hname');if(i){i.value=b.dataset.n;i.focus()}}
   else if(a==='ttog'){const r=S.tasks[b.dataset.id];if(!r)return;const done=!r.done;b.classList.toggle('on',done);b.classList.add('just');sfx(done?'check':'uncheck');markJust('t',b.dataset.id);put('tasks',b.dataset.id,{...r,done,doneAt:done?today():''});if(done){const tk=tasksToday();if(!tk.pend.length&&tk.done.length>=2){toast('¡Has terminado todas las tareas de hoy!');confetti()}else toast('Tarea hecha')}}
   else if(a==='tmove'){const r=S.tasks[b.dataset.id];if(!r)return;const d=b.dataset.to==='hoy'?today():addDays(today(),1);put('tasks',b.dataset.id,{...r,date:d});toast(b.dataset.to==='hoy'?'Movida a hoy':'Movida a mañana')}
+  else if(a==='hx'){ui.hx=ui.hx===b.dataset.id?null:b.dataset.id;renderDyn()}
+  else if(a==='habDel'){const hid=ui.edit&&ui.edit.id;if(!hid)return;if(ui.armed==='hdel'){ui.armed=null;sfx('delete');Object.entries(S.habitlog).forEach(([d,v])=>{if(v.done&&v.done[hid]){const done={...v.done};delete done[hid];put('habitlog',d,{...v,done})}});del('habits',hid);closeSheet();toast('Hábito borrado')}else{ui.armed='hdel';b.textContent='¿Borrar? Toca otra vez';b.classList.add('armed')}}
   else if(a==='tfilter'){ui.tf=ui.tf===b.dataset.v?'':b.dataset.v;lsSet('jl-tf',ui.tf);renderDyn()}
   else if(a==='swHint'){lsSet('jl-swhint','1');const h=b.closest('.sw-hint');if(h){h.animate([{opacity:1},{opacity:0,transform:'translateY(-6px)'}],{duration:200}).onfinish=()=>h.remove()}}
   else if(a==='moreList'){ui[b.dataset.k]=!ui[b.dataset.k];renderDyn()}
