@@ -862,6 +862,16 @@ a.btn{text-decoration:none}
 .tt-name{font-weight:600;min-width:0}input.tt-name{padding:6px 8px;border-radius:9px;font-size:.92rem}
 .tt-n{font-size:.78rem}.tt-addrow{display:flex;gap:8px;margin-top:6px}.tt-addrow .btn .ic{width:14px;height:14px}
 .tt-ed{color:var(--muted)}.tt-prev{display:flex;flex-wrap:wrap;gap:6px}
+.ag-ad{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.ag-adl{flex:none;font:600 .7rem var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:6px}
+.ag-adc{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.ad-it{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.ad-it[style*="--tc"]{background:color-mix(in srgb,var(--tc) 26%,transparent);box-shadow:inset 3px 0 0 var(--tc)}
+.ag-it{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:.8rem;padding:6px 10px;border-radius:9px;touch-action:pan-y}.ag-it .ic{width:12px;height:12px}
+.ad-it.done{opacity:.5;text-decoration:line-through}.ad-src{opacity:.35}
+.ad-fly{position:fixed;z-index:70;pointer-events:none;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 .82rem var(--f-body);box-shadow:0 18px 40px -12px rgba(0,0,0,.7);transform:rotate(-2deg) scale(1.04)}
+.ad-fly[style*="--tc"]{background:var(--tc);color:#fff}.ad-ft{font:600 .75rem var(--f-mono);opacity:.85}
+.cal-col.drop{background-color:color-mix(in srgb,var(--accent) 10%,transparent)}
 .aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
@@ -1497,7 +1507,7 @@ function calGrid(days,mini){const t=today();
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   return `<div class="cal${mini?' mini':''}" style="--n:${days.length}">
     <div class="cal-dh"><span></span>${cols.map(c=>{const x=parse(c.d);return `<button class="cal-dn${c.d===t?' today':''}" data-act="calDay" data-d="${c.d}"><span>${['dom','lun','mar','mié','jue','vie','sáb'][x.getDay()]}</span><b>${x.getDate()}</b></button>`}).join('')}</div>
-    <div class="cal-ad"><span class="cal-adl">todo el día</span>${cols.map(c=>`<div class="cal-adc">${c.untimed.map(i=>`<button class="ad-it${i.done?' done':''}" data-act="calEv" data-k="${i.k}" data-id="${esc(i.id)}" data-d="${c.d}">${esc(i.title)}</button>`).join('')}</div>`).join('')}</div>
+    <div class="cal-ad"><span class="cal-adl">todo el día</span>${cols.map(c=>`<div class="cal-adc">${c.untimed.map(i=>`<button class="ad-it${i.done?' done':''}" data-act="calEv" data-k="${i.k}" data-id="${esc(i.id)}" data-d="${c.d}"${i.k==='t'?' data-drag="1"':''}${i.tc?` style="--tc:${i.tc}"`:''}>${esc(i.title)}</button>`).join('')}</div>`).join('')}</div>
     <div class="cal-sc" id="calSc"><div class="cal-g" style="height:${24*CAL.H}px">
       <div class="cal-hours">${[...Array(24)].map((_,h)=>`<span style="top:${h*CAL.H}px">${h?pad(h)+':00':''}</span>`).join('')}</div>
       ${cols.map(c=>`<div class="cal-col${c.d===t?' today':''}" data-d="${c.d}">${c.d===t?`<span class="cal-now" style="top:${nowM/60*CAL.H}px"></span>`:''}${c.timed.map(ev=>evBlock(ev,c.d)).join('')}</div>`).join('')}
@@ -1508,12 +1518,14 @@ function dayAgenda(){const t=today(),n=new Date(),nowM=n.getHours()*60+n.getMinu
   let a=Math.min(nowM,...evs.map(e=>e.s)),z=Math.max(nowM+60,...evs.map(e=>e.e));
   a=Math.max(0,Math.floor(a/60)-1);z=Math.min(24,Math.ceil(z/60)+1);if(z-a<5){z=Math.min(24,a+5);a=Math.max(0,z-5)}
   const off=a*60,hrs=z-a,H=Math.max(26,Math.min(44,Math.round(380/hrs)));
+  const un=itemsOn(t).filter(i=>i.k==='t'&&toMin(i.time)===null).sort((x,y)=>(x.done-y.done)||(y.imp-x.imp));
   return `<section class="panel agenda" aria-label="Tu día"><div class="hd"><h2>Tu día</h2><button class="btn sm ghost" data-act="openCal">${svg(IC.cal)}Calendario</button></div>
+  ${un.length?`<div class="ag-ad"><span class="ag-adl">Sin hora</span><div class="ag-adc">${un.map(i=>`<button class="ad-it ag-it${i.done?' done':''}" data-act="calEv" data-k="t" data-id="${esc(i.id)}" data-d="${t}" data-drag="1"${i.tc?` style="--tc:${i.tc}"`:''}>${i.done?svg(IC.check):''}${esc(i.title)}</button>`).join('')}</div></div>`:''}
   <div class="ag-g" style="height:${hrs*H}px">
     <div class="ag-hours">${[...Array(hrs+1)].map((_,i)=>i&&i<hrs?`<span style="top:${i*H}px">${pad(a+i)}:00</span>`:'').join('')}</div>
     <div class="cal-col ag-col" data-d="${t}" data-h="${H}" data-from="${off}" style="background-size:100% ${H}px">${nowM>=off&&nowM<=z*60?`<span class="cal-now" style="top:${(nowM-off)/60*H}px"></span>`:''}${evs.map(ev=>evBlock(ev,t,H,off)).join('')}</div>
   </div>
-  <p class="muted cal-hint">${evs.length?'':'Nada con hora todavía. '}Toca una hora libre para añadir una tarea.</p></section>`}
+  <p class="muted cal-hint">${un.some(i=>!i.done)?'Arrastra una tarea sin hora a una franja para darle hora. ':evs.length?'':'Nada con hora todavía. '}Toca una hora libre para añadir una tarea.</p></section>`}
 function calAfter(){const sc=document.getElementById('calSc');if(!sc)return;
   if(ui.cscroll==null){const n=new Date(),m=(ui.cdate===today()||calRange().includes(today()))?n.getHours()*60+n.getMinutes()-90:7*60;ui.cscroll=Math.max(0,m/60*CAL.H)}
   sc.scrollTop=ui.cscroll;sc.addEventListener('scroll',()=>{ui.cscroll=sc.scrollTop},{passive:true})}
@@ -2418,7 +2430,7 @@ window.addEventListener('hashchange',fromHash);
 document.addEventListener('click',e=>{
   if(typeof NT!=='undefined'&&NT.menu&&!e.target.closest('#nMenuPop,[data-act=nMenu]')){NT.menu=false;const m=document.getElementById('nMenuPop');if(m)m.hidden=true;const mb=document.querySelector('[data-act=nMenu]');if(mb){mb.classList.remove('on');mb.setAttribute('aria-expanded','false')}}
   if(e.target.id==='sheet'){closeSheet();return}
-  if(Date.now()-(ui.dragAt||0)<400&&e.target.closest('.cal-col')){return}
+  if(Date.now()-(ui.dragAt||0)<400&&e.target.closest('.cal-col,.ad-it')){return}
   const cc=e.target.closest('.cal-col');if(cc&&!e.target.closest('.ev')){const y=e.clientY-cc.getBoundingClientRect().top,m=Math.max(0,Math.min(1425,(+cc.dataset.from||0)+Math.floor(y/(+cc.dataset.h||CAL.H)*60/15)*15));ui.prefill={date:cc.dataset.d,time:fromMin(m)};openSheet('tarea');return}
   const nc=e.target.closest('[data-ncmd]');if(nc){noteCmd(nc.dataset.ncmd);return}
   const ntb=e.target.closest('[data-ntbl]');if(ntb){tableOp(ntb.dataset.ntbl);return}
@@ -2598,6 +2610,25 @@ document.addEventListener('submit',e=>{
     else{const h=S.habits[id];if(!h)return renderDyn();const ch=x.rs?{dur:x.ne-x.s}:{time:fromMin(x.ns)};
       if((x.rs&&ch.dur===(+h.dur||30))||(!x.rs&&ch.time===h.time))return renderDyn();sfx('success');put('habits',id,{...h,...ch});toast(x.rs?'Duración: '+ch.dur+' min':h.name+' ahora a las '+ch.time)}};
   document.addEventListener('pointerup',end);document.addEventListener('pointercancel',e=>{if(g&&!g.on)end(e);else if(g&&e.pointerId===g.id)end(e)})})();
+
+/* tareas sin hora: arrastrarlas a una franja les pone esa hora */
+(function(){let g=null;
+  const colAt=(x,y)=>document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains('cal-col'))||null;
+  const begin=()=>{if(!g||g.on)return;g.on=true;sfx('drag');const r=g.el.getBoundingClientRect(),f=g.el.cloneNode(true);f.className='ad-fly';f.style.cssText+=`;left:${r.left}px;top:${r.top}px;width:${Math.max(120,r.width)}px`;f.removeAttribute('data-act');
+    f.insertAdjacentHTML('beforeend','<span class="ad-ft"></span>');document.body.appendChild(f);g.fly=f;g.dx=g.x-r.left;g.dy=g.y-r.top;g.el.classList.add('ad-src');document.body.style.userSelect='none'};
+  document.addEventListener('pointerdown',e=>{const el=e.target.closest('.ad-it[data-drag]');if(!el||e.button>0||el.classList.contains('done'))return;g={el,id:el.dataset.id,x:e.clientX,y:e.clientY,on:false,touch:e.pointerType!=='mouse',pid:e.pointerId};if(g.touch)g.lp=setTimeout(begin,300)});
+  document.addEventListener('touchmove',e=>{if(g&&g.on)e.preventDefault()},{passive:false});
+  document.addEventListener('pointermove',e=>{if(!g||e.pointerId!==g.pid)return;const mx=Math.abs(e.clientX-g.x),my=Math.abs(e.clientY-g.y);
+    if(!g.on){if(g.touch){if(mx>8||my>8){clearTimeout(g.lp);g=null}return}if(mx+my>5)begin();else return}
+    g.fly.style.left=(e.clientX-g.dx)+'px';g.fly.style.top=(e.clientY-g.dy)+'px';
+    document.querySelectorAll('.cal-col.drop').forEach(c=>c.classList.remove('drop'));const col=colAt(e.clientX,e.clientY);g.m=null;
+    if(col){col.classList.add('drop');const H=+col.dataset.h||CAL.H,from=+col.dataset.from||0,y=e.clientY-g.dy+8-col.getBoundingClientRect().top;g.m=Math.max(0,Math.min(1425,Math.round((from+y/H*60)/15)*15));g.d=col.dataset.d;g.fly.querySelector('.ad-ft').textContent=fromMin(g.m)}
+    else g.fly.querySelector('.ad-ft').textContent=''});
+  const end=e=>{if(!g||(e&&e.pointerId!==g.pid))return;clearTimeout(g.lp);const x=g;g=null;document.body.style.userSelect='';if(!x.on)return;ui.dragAt=Date.now();
+    document.querySelectorAll('.cal-col.drop').forEach(c=>c.classList.remove('drop'));x.el.classList.remove('ad-src');
+    const r=S.tasks[x.id];if(x.m!=null&&r){x.fly.remove();sfx('success');put('tasks',x.id,{...r,time:fromMin(x.m),date:x.d||r.date});toast('«'+r.title+'» a las '+fromMin(x.m))}
+    else{const b=x.el.getBoundingClientRect();x.fly.animate([{},{left:b.left+'px',top:b.top+'px',opacity:.3}],{duration:220,easing:'ease-in',fill:'forwards'}).onfinish=()=>x.fly.remove()}};
+  document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end)})();
 
 /* hojas: arrastrar hacia abajo para cerrar, con rebote si no llegas */
 (function(){let d=null;const sh=()=>document.querySelector('#sheet .sheet');
