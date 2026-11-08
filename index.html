@@ -847,6 +847,21 @@ a.btn{text-decoration:none}
 .tt-stats{display:grid;gap:8px}.tt-s{display:grid;grid-template-columns:110px 1fr 28px;align-items:center;gap:10px;font-size:.85rem}
 .tt-s span{display:inline-flex;align-items:center;gap:6px}.tt-s .ic{width:14px;height:14px;color:var(--tc)}
 .tt-tr{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}.tt-tr i{display:block;height:100%;border-radius:inherit;background:var(--tc)}.tt-s b{text-align:right}
+.tt-add{border-style:dashed!important;color:var(--muted);background:transparent;display:inline-flex;align-items:center;gap:4px;cursor:pointer;font:inherit}.tt-add .ic{width:14px;height:14px}
+.tt-new{display:grid;gap:10px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--sunk)}
+.tt-new .tt-nn,.tt-addrow .tt-nn{width:100%;box-sizing:border-box}
+.tt-pal{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.tt-pal.full{grid-column:1/-1;padding:4px 0 2px}
+.tt-sw{width:28px;height:28px;border-radius:50%;border:0;padding:0;cursor:pointer;position:relative;transition:transform .15s var(--e-out)}
+.tt-sw.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}.tt-sw:active{transform:scale(.9)}
+.tt-any{background:conic-gradient(#f44,#fd4,#4f6,#4df,#46f,#d4f,#f44);overflow:hidden}.tt-any input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.tt-na{display:flex;justify-content:flex-end;gap:8px}
+.tt-man{display:grid;gap:2px}
+.tt-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}
+.tt-dot{width:36px;height:36px;border-radius:12px;border:0;display:grid;place-items:center;background:var(--tc);color:#fff;cursor:pointer;box-shadow:0 6px 16px -8px var(--tc)}.tt-dot .ic{width:17px;height:17px}
+.tt-row.open .tt-dot{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--tc)}
+.tt-name{font-weight:600;min-width:0}input.tt-name{padding:6px 8px;border-radius:9px;font-size:.92rem}
+.tt-n{font-size:.78rem}.tt-addrow{display:flex;gap:8px;margin-top:6px}.tt-addrow .btn .ic{width:14px;height:14px}
+.tt-ed{color:var(--muted)}.tt-prev{display:flex;flex-wrap:wrap;gap:6px}
 .aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
@@ -1243,7 +1258,7 @@ const IC={
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
   cal:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'
 };
-const TTYPES=[['trabajo','Trabajo','#3d6bff','<rect x="3.5" y="7" width="17" height="12" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17"/>'],
+const TT_BASE=[['trabajo','Trabajo','#3d6bff','<rect x="3.5" y="7" width="17" height="12" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17"/>'],
   ['estudio','Estudio','#8b5cf6','<path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/>'],
   ['salud','Salud','#22b46a','<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>'],
   ['ocio','Ocio','#e0447c','<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'],
@@ -1251,9 +1266,22 @@ const TTYPES=[['trabajo','Trabajo','#3d6bff','<rect x="3.5" y="7" width="17" hei
   ['compras','Compras','#e8b400','<path d="M3 4h2l2 11h11l2-8H6M9 19.5h.01M17 19.5h.01"/>'],
   ['personal','Personal','#0fa3b1','<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>'],
   ['otros','Otros','#8c8c8c','<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>']];
-const ttype=r=>r&&r.type?TTYPES.find(x=>x[0]===r.type)||null:null;
-const ttPill=(t,cls='')=>t?`<span class="pill tt${cls}" style="--tc:${t[2]}">${svg(t[3])}${t[1]}</span>`:'';
-const ttChips=(sel,name='type')=>`<div class="chips tt-chips" role="radiogroup" aria-label="Tipo"><label class="chip"><input type="radio" name="${name}" value=""${sel?'':' checked'}><span>Ninguno</span></label>${TTYPES.map(([k,l,c,ic])=>`<label class="chip tt-c" style="--tc:${c}"><input type="radio" name="${name}" value="${k}"${sel===k?' checked':''}><span>${svg(ic)}${l}</span></label>`).join('')}</div>`;
+const TT_TAG='<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.5 1.5 0 0 1 0 2.1l-6.2 6.2a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.4"/>';
+const TT_PAL=['#3d6bff','#8b5cf6','#22b46a','#e0447c','#f07a1a','#e8b400','#0fa3b1','#ff5a4f','#14b8a6','#a3e635','#c084fc','#8c8c8c'];
+function ttSetColor(k,c){const cu=Array.isArray(S.config.ttypes)?S.config.ttypes:[];
+  if(cu.some(x=>x.k===k))put('config','main',{...S.config,ttypes:cu.map(x=>x.k===k?{...x,c}:x)});
+  else{const cc={...(S.config.ttColors||{})};if(c)cc[k]=c;else delete cc[k];put('config','main',{...S.config,ttColors:cc})}
+  sfx('tap');const sb=document.getElementById('sheetBody');if(ui.sheet==='ttmanage'&&sb)sb.innerHTML=SHEETS.ttmanage()}
+function ttList(){const cc=S.config.ttColors||{},cu=Array.isArray(S.config.ttypes)?S.config.ttypes:[];
+  const key=JSON.stringify([cc,cu]);if(ttList._k===key)return ttList._v;
+  ttList._k=key;ttList._v=[...TT_BASE.map(([k,l,c,ic])=>[k,l,cc[k]||c,ic,false]),...cu.filter(x=>x&&x.k&&x.l).map(x=>[x.k,x.l,x.c||'#8c8c8c',TT_TAG,true])];return ttList._v}
+const ttype=r=>r&&r.type?ttList().find(x=>x[0]===r.type)||null:null;
+const ttPill=(t,cls='')=>t?`<span class="pill tt${cls}" style="--tc:${t[2]}">${svg(t[3])}${esc(t[1])}</span>`:'';
+const ttChips=(sel,name='type')=>`<div class="chips tt-chips" role="radiogroup" aria-label="Tipo"><label class="chip"><input type="radio" name="${name}" value=""${sel?'':' checked'}><span>Ninguno</span></label>${ttList().filter(x=>x[0]!=='otros'||sel==='otros').map(([k,l,c,ic])=>ttChip(k,l,c,ic,sel===k,name)).join('')}<button type="button" class="chip tt-add" data-act="ttNew">${svg(IC.plus)}Otra…</button></div>
+  <div class="tt-new" hidden><input class="tt-nn" maxlength="24" placeholder="Nombre de la etiqueta (p. ej. Gimnasio)" aria-label="Nombre de la etiqueta" autocomplete="off">
+    <div class="tt-pal">${TT_PAL.map((c,i)=>`<button type="button" class="tt-sw${i===7?' on':''}" style="background:${c}" data-act="ttPick" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}<label class="tt-sw tt-any" title="Otro color"><input type="color" class="tt-cc" value="#ff5a4f" aria-label="Otro color"></label></div>
+    <div class="tt-na"><button type="button" class="btn sm ghost" data-act="ttCancel">Cancelar</button><button type="button" class="btn sm" data-act="ttCreate">Crear etiqueta</button></div></div>`;
+const ttChip=(k,l,c,ic,on,name='type')=>`<label class="chip tt-c" style="--tc:${c}"><input type="radio" name="${name}" value="${esc(k)}"${on?' checked':''}><span>${svg(ic)}${esc(l)}</span></label>`;
 const CATIC={Comida:'<path d="M3 4h2l2 11h11l2-8H6M9 19.5h.01M17 19.5h.01"/>',Vivienda:'<path d="M3 11l9-7 9 7M5 10v10h14V10"/>',
   Transporte:'<path d="M5 17h14M5 17V11l2-5h10l2 5v6M7.5 20v-3M16.5 20v-3M5 11h14"/>',Servicios:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
   Salud:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',Ocio:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
@@ -1530,7 +1558,7 @@ V.tareas={form:()=>'',dyn(){return tviewTabs()+(ui.tview==='cal'?calView():tarea
 const WDN=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],MESN=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function parseTask(txt){let s=' '+String(txt||'')+' ',date=null,time='',imp=false;const t=today(),cut=re=>{const m=s.match(re);if(m)s=s.replace(re,' ');return m};
   if(cut(/\s!+(?=\s)|\s(?:es\s+)?importante(?=\s)/i))imp=true;
-  let type='';{const nrm=x=>x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');const m0=s.match(/\s#([\p{L}]{2,})(?=\s)/u);if(m0){const w=nrm(m0[1]),hit=TTYPES.find(x=>x[0].startsWith(w)||nrm(x[1]).startsWith(w));if(hit){type=hit[0];s=s.replace(m0[0],' ')}}}
+  let type='';{const nrm=x=>x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');const m0=s.match(/\s#([\p{L}]{2,})(?=\s)/u);if(m0){const w=nrm(m0[1]),hit=ttList().find(x=>x[0].startsWith(w)||nrm(x[1]).startsWith(w));if(hit){type=hit[0];s=s.replace(m0[0],' ')}}}
   if(cut(/\s(?:sin\s+fecha|algún\s+día|algun\s+dia)(?=\s)/i))date='';
   const per=cut(/\s(?:por|de)\s+la\s+(mañana|tarde|noche)(?=\s)/i),pp=per&&per[1].toLowerCase();
   let m=cut(/\s(?:a|sobre|hacia)\s+las?\s+(\d{1,2})(?:[:.](\d{2}))?\s*h?(?=\s)/i)||cut(/\s(\d{1,2})[:.](\d{2})\s*h?(?=\s)/);
@@ -1551,7 +1579,7 @@ function taskPreview(v){const p=parseTask(v);if(!p.title)return '';const out=[`<
 const TF=[['hoy','hoy'],['over','atrasadas'],['prox','próximas'],['sin','sin fecha'],['imp','importantes']];
 function tareasLista(){
   const p=P(),t=today(),tyf=ui.ttype||'',okT=r=>!tyf||(r.type||'')===tyf,all=vals('tasks').filter(okT),tk0=tasksToday(),tk={pend:tk0.pend.filter(okT),done:tk0.done.filter(okT)},f=ui.tf||'';
-  const usedT=TTYPES.filter(x=>vals('tasks').some(r=>r.type===x[0]));
+  const usedT=ttList().filter(x=>vals('tasks').some(r=>r.type===x[0]));
   const over=tk.pend.filter(r=>r.date<t),pendT=tk.pend.filter(r=>r.date===t);
   const upcoming=all.filter(r=>!r.done&&r.date&&r.date>t).sort((a,b)=>a.date.localeCompare(b.date)||tSort(a,b));
   const nodate=all.filter(r=>!r.done&&!r.date).sort(tSort);
@@ -1579,13 +1607,13 @@ function tareasLista(){
   const hint=lsGet('jl-swhint')==='1'?'':`<div class="hintbar sw-hint"><span>${svg(IC.arrow)}Desliza una tarea a la derecha para completarla y a la izquierda para dejarla para mañana. Tócala para editarla.</span><button class="n-ic" data-act="swHint" aria-label="Cerrar aviso">×</button></div>`;
   return `<form class="qbar" data-form="taskn" autocomplete="off"><div class="qbar-in"><span class="qbar-ic">${svg(IC.plus)}</span><input id="tn-title" name="title" maxlength="160" placeholder="Nueva tarea… «Llamar a Ana mañana a las 17 #trabajo»" aria-label="Nueva tarea. Puedes escribir el día, la hora y ! para importante" enterkeyhint="done"><button class="btn" type="submit">Añadir</button></div><div class="qbar-prev" id="tnPrev" aria-live="polite"></div></form>
   <div class="tstrip" role="group" aria-label="Filtrar tareas">${TF.map(([k,l])=>`<button data-act="tfilter" data-v="${k}" aria-pressed="${f===k}" class="${k==='over'&&over.length?'bad':''}"><b>${N[k]}</b><span>${l}</span></button>`).join('')}</div>
-  ${usedT.length?`<div class="tt-bar" role="group" aria-label="Filtrar por tipo"><button class="tt-f${tyf?'':' on'}" data-act="ttype" data-v="" aria-pressed="${!tyf}">Todos</button>${usedT.map(([k,l,c,ic])=>`<button class="tt-f${tyf===k?' on':''}" data-act="ttype" data-v="${k}" aria-pressed="${tyf===k}" style="--tc:${c}">${svg(ic)}${l}</button>`).join('')}</div>`:''}
+  ${usedT.length?`<div class="tt-bar" role="group" aria-label="Filtrar por tipo"><button class="tt-f${tyf?'':' on'}" data-act="ttype" data-v="" aria-pressed="${!tyf}">Todos</button>${usedT.map(([k,l,c,ic])=>`<button class="tt-f${tyf===k?' on':''}" data-act="ttype" data-v="${k}" aria-pressed="${tyf===k}" style="--tc:${c}">${svg(ic)}${esc(l)}</button>`).join('')}<button class="tt-f tt-ed" data-act="sheet" data-k="ttmanage" aria-label="Editar etiquetas">${svg(IC.edit)}Etiquetas</button></div>`:''}
   ${hint}${main}
   <div class="panel"><div class="hd"><h2>Completadas</h2><span class="muted">${doneP.length} · ${sched.length?Math.round(schedDone/sched.length*100)+'% cumplido':'sin tareas con fecha'}</span></div>
     ${pbar()}
     ${barChart({labels:ds.map(d=>p.days>7?String(parse(d).getDate()):DOW[parse(d).getDay()]+' '+parse(d).getDate()),values:perDay,max:mx,color:'--accent',fmt:v=>String(Math.round(v)),hi:ds.indexOf(t)})}
     ${(()=>{const c={};doneP.forEach(r=>{const k=r.type||'';c[k]=(c[k]||0)+1});const it=Object.entries(c).filter(([k])=>k).sort((a,b)=>b[1]-a[1]);if(!it.length)return '';const mxv=Math.max(...it.map(x=>x[1]));
-      return `<div class="lbl">Por tipo</div><div class="tt-stats">${it.map(([k,n])=>{const tt=TTYPES.find(x=>x[0]===k);return `<div class="tt-s" style="--tc:${tt[2]}"><span>${svg(tt[3])}${tt[1]}</span><div class="tt-tr"><i style="width:${Math.round(n/mxv*100)}%"></i></div><b class="num">${n}</b></div>`}).join('')}${c['']?`<p class="muted" style="margin:2px 0 0;font-size:.8rem">${c['']} sin tipo</p>`:''}</div>`})()}</div>`;
+      return `<div class="lbl">Por tipo</div><div class="tt-stats">${it.map(([k,n])=>{const tt=ttList().find(x=>x[0]===k);return `<div class="tt-s" style="--tc:${tt[2]}"><span>${svg(tt[3])}${tt[1]}</span><div class="tt-tr"><i style="width:${Math.round(n/mxv*100)}%"></i></div><b class="num">${n}</b></div>`}).join('')}${c['']?`<p class="muted" style="margin:2px 0 0;font-size:.8rem">${c['']} sin tipo</p>`:''}</div>`})()}</div>`;
 }
 
 /* ---------- hábitos ---------- */
@@ -1822,6 +1850,16 @@ const SHEETS={
     <textarea name="note" maxlength="400" placeholder="Qué aprendí" aria-label="Qué aprendí">${esc(r.note||'')}</textarea>
     <button class="btn big" type="submit">Guardar cambios</button>
     <div class="sh-btns"><button type="button" class="btn ghost" data-act="lDel">Borrar</button></div></form>`},
+  ttmanage:()=>`<div class="sh-hd"><h2>Etiquetas de tareas</h2>${closeBtn()}</div>
+    <p class="muted" style="margin:0;font-size:.88rem">Toca el color de una etiqueta para cambiarlo. Las tuyas también se pueden renombrar o borrar.</p>
+    <div class="tt-man">${ttList().map(([k,l,c,ic,custom])=>{const n=vals('tasks').filter(r=>r.type===k).length;return `<div class="tt-row${ui.ttOpen===k?' open':''}" style="--tc:${c}">
+      <button class="tt-dot" data-act="ttOpen" data-k="${esc(k)}" aria-label="Cambiar color de ${esc(l)}" aria-expanded="${ui.ttOpen===k}">${svg(ic)}</button>
+      ${custom?`<input class="tt-name" data-ttk="${esc(k)}" value="${esc(l)}" maxlength="24" aria-label="Nombre">`:`<span class="tt-name">${esc(l)}</span>`}
+      <span class="muted tt-n">${n?n+(n===1?' tarea':' tareas'):''}</span>
+      ${custom?`<button class="n-ic${ui.armed==='tt/'+k?' armed':''}" data-act="ttDel" data-k="${esc(k)}" aria-label="Borrar ${esc(l)}">${ui.armed==='tt/'+k?'<span style="font-size:.8rem;font-weight:600">¿Borrar?</span>':svg(IC.trash)}</button>`:''}
+      ${ui.ttOpen===k?`<div class="tt-pal full">${TT_PAL.map(pc=>`<button type="button" class="tt-sw${pc===c?' on':''}" style="background:${pc}" data-act="ttColor" data-k="${esc(k)}" data-c="${pc}" aria-label="Color ${pc}"></button>`).join('')}<label class="tt-sw tt-any" title="Otro color"><input type="color" data-ttc="${esc(k)}" value="${c}" aria-label="Otro color"></label>${!custom&&(S.config.ttColors||{})[k]?`<button type="button" class="btn sm ghost" data-act="ttReset" data-k="${esc(k)}">Original</button>`:''}</div>`:''}
+    </div>`}).join('')}</div>
+    <div class="tt-addrow"><input class="tt-nn" id="ttNewName" maxlength="24" placeholder="Nueva etiqueta…" aria-label="Nueva etiqueta" autocomplete="off"><button class="btn sm" data-act="ttAdd">${svg(IC.plus)}Añadir</button></div>`,
   budget:()=>`<div class="sh-hd"><h2>Presupuesto mensual</h2>${closeBtn()}</div>
     <form class="sh-f" data-form="budget"><label class="fld">Cuánto quieres gastar al mes como máximo<input name="budget" type="number" inputmode="decimal" min="0" step="1" value="${+cfg().budget||''}" placeholder="Por ejemplo 900" autofocus></label>
     <p class="muted" style="margin:0;font-size:.88rem">Te avisaré al llegar al 80 % y te diré cuánto puedes gastar cada día. Déjalo en 0 para quitarlo.</p>
@@ -2274,6 +2312,10 @@ dyn(){let cur=(S.config.accent||'#ffffff').toLowerCase();if(cur==='#0a0a0a')cur=
     ${row(IC.phone||IC.spark,'Vibración','en móviles Android',sw(S.config.haptic!==false,'haptic',S.config.haptic!==false?0:1,'Vibración'))}
     <p class="muted aj-note">En el iPhone los sonidos respetan el interruptor de silencio y no cortan tu música.</p>
   </section>
+  <section class="panel aj"><h2>Etiquetas de tareas</h2>
+    <div class="tt-prev">${ttList().map(([k,l,c,ic])=>`<span class="pill tt" style="--tc:${c}">${svg(ic)}${esc(l)}</span>`).join('')}</div>
+    <button class="btn sm ghost" data-act="sheet" data-k="ttmanage" style="justify-self:start">${svg(IC.edit)}Editar colores y crear etiquetas</button>
+  </section>
   <section class="panel aj"><h2>Calendario</h2>
     <button class="aj-link" data-act="sheet" data-k="apple">${row(IC.cal,'Calendario de Apple o Google','ver tus tareas y hábitos con hora',svg(IC.arrow,'ic aj-go'))}</button>
   </section>
@@ -2444,6 +2486,21 @@ document.addEventListener('click',e=>{
   else if(a==='mcf'){ui.mcf=ui.mcf===b.dataset.v?'':b.dataset.v;ui.mAll=false;renderDyn()}
   else if(a==='hx'){ui.hx=ui.hx===b.dataset.id?null:b.dataset.id;renderDyn()}
   else if(a==='habDel'){const hid=ui.edit&&ui.edit.id;if(!hid)return;if(ui.armed==='hdel'){ui.armed=null;sfx('delete');Object.entries(S.habitlog).forEach(([d,v])=>{if(v.done&&v.done[hid]){const done={...v.done};delete done[hid];put('habitlog',d,{...v,done})}});del('habits',hid);closeSheet();toast('Hábito borrado')}else{ui.armed='hdel';b.textContent='¿Borrar? Toca otra vez';b.classList.add('armed')}}
+  else if(a==='ttNew'){const w=b.closest('.sh-f,form,#sheetBody').querySelector('.tt-new');if(w){w.hidden=false;const i=w.querySelector('.tt-nn');if(i)i.focus()}}
+  else if(a==='ttCancel'){const w=b.closest('.tt-new');if(w)w.hidden=true}
+  else if(a==='ttPick'){const w=b.closest('.tt-pal');w.querySelectorAll('.tt-sw').forEach(x=>x.classList.toggle('on',x===b))}
+  else if(a==='ttCreate'){const w=b.closest('.tt-new'),nm=(w.querySelector('.tt-nn').value||'').trim();if(!nm){toast('Escribe un nombre');w.querySelector('.tt-nn').focus();return}
+    if(ttList().some(x=>x[1].toLowerCase()===nm.toLowerCase())){toast('Ya tienes una etiqueta con ese nombre');return}
+    const on=w.querySelector('.tt-sw.on'),c=on&&on.dataset.c?on.dataset.c:(w.querySelector('.tt-cc')||{}).value||'#8c8c8c',k='c'+uid().slice(0,8);
+    put('config','main',{...S.config,ttypes:[...(Array.isArray(S.config.ttypes)?S.config.ttypes:[]),{k,l:nm.slice(0,24),c}]});sfx('success');
+    const box=w.previousElementSibling&&w.previousElementSibling.classList.contains('tt-chips')?w.previousElementSibling:document.querySelector('#sheetBody .tt-chips');
+    if(box){const t=document.createElement('template');t.innerHTML=ttChip(k,nm,c,TT_TAG,true);box.insertBefore(t.content.firstChild,box.querySelector('.tt-add'))}
+    w.querySelector('.tt-nn').value='';w.hidden=true;toast('Etiqueta «'+nm+'» creada')}
+  else if(a==='ttOpen'){ui.ttOpen=ui.ttOpen===b.dataset.k?null:b.dataset.k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
+  else if(a==='ttColor'||a==='ttReset'){ttSetColor(b.dataset.k,a==='ttReset'?null:b.dataset.c)}
+  else if(a==='ttDel'){const k=b.dataset.k;if(ui.armed==='tt/'+k){ui.armed=null;sfx('delete');put('config','main',{...S.config,ttypes:(S.config.ttypes||[]).filter(x=>x.k!==k)});vals('tasks').filter(r=>r.type===k).forEach(r=>put('tasks',r.id,{...S.tasks[r.id],type:''}));if(ui.ttype===k)ui.ttype='';toast('Etiqueta borrada')}else ui.armed='tt/'+k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
+  else if(a==='ttAdd'){const i=document.getElementById('ttNewName'),nm=(i&&i.value||'').trim();if(!nm){toast('Escribe un nombre');return}if(ttList().some(x=>x[1].toLowerCase()===nm.toLowerCase())){toast('Ya tienes una etiqueta con ese nombre');return}
+    const used=new Set(ttList().map(x=>x[2])),c=TT_PAL.find(x=>!used.has(x))||TT_PAL[0],k='c'+uid().slice(0,8);put('config','main',{...S.config,ttypes:[...(Array.isArray(S.config.ttypes)?S.config.ttypes:[]),{k,l:nm.slice(0,24),c}]});sfx('success');ui.ttOpen=k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
   else if(a==='ttype'){ui.ttype=b.dataset.v;lsSet('jl-ttype',ui.ttype);renderDyn()}
   else if(a==='tfilter'){ui.tf=ui.tf===b.dataset.v?'':b.dataset.v;lsSet('jl-tf',ui.tf);renderDyn()}
   else if(a==='swHint'){lsSet('jl-swhint','1');const h=b.closest('.sw-hint');if(h){h.animate([{opacity:1},{opacity:0,transform:'translateY(-6px)'}],{duration:200}).onfinish=()=>h.remove()}}
@@ -2476,7 +2533,10 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{const sf=e.target.closest&&e.target.closest('form[data-form=sleep]');if(sf&&(e.target.name==='bed'||e.target.name==='wake')){const d=document.getElementById('slDur');if(d&&sf.bed.value&&sf.wake.value)d.textContent=fmtH(sleepHours(sf.bed.value,sf.wake.value))}
   if(e.target.id==='rpIn'){const o=document.getElementById('rpOut');if(o)o.textContent=e.target.value+' %'}
   if(e.target.id==='tn-title'){const pv=document.getElementById('tnPrev');if(pv)pv.innerHTML=e.target.value.trim()?taskPreview(e.target.value):''}});
-document.addEventListener('change',e=>{const ck=e.target.dataset&&e.target.dataset.cfg;if(ck){let v=e.target.value.trim();if(ck==='budget')v=Math.max(0,Math.round(+v||0));else if(ck==='currency'){if(!v)return;v=v.slice(0,4)}put('config','main',{...S.config,[ck]:v,curV:2});toast('Guardado');return}
+document.addEventListener('change',e=>{const tk=e.target.dataset&&e.target.dataset.ttk;if(tk){const nm=e.target.value.trim();if(nm){put('config','main',{...S.config,ttypes:(S.config.ttypes||[]).map(x=>x.k===tk?{...x,l:nm.slice(0,24)}:x)});toast('Etiqueta renombrada')}return}
+  const tc=e.target.dataset&&e.target.dataset.ttc;if(tc){ttSetColor(tc,e.target.value);return}
+  if(e.target.classList&&e.target.classList.contains('tt-cc')){const w=e.target.closest('.tt-pal');w.querySelectorAll('.tt-sw').forEach(x=>x.classList.remove('on'));const l=e.target.closest('.tt-any');l.classList.add('on');l.dataset.c=e.target.value;l.style.background=e.target.value;return}
+  const ck=e.target.dataset&&e.target.dataset.cfg;if(ck){let v=e.target.value.trim();if(ck==='budget')v=Math.max(0,Math.round(+v||0));else if(ck==='currency'){if(!v)return;v=v.slice(0,4)}put('config','main',{...S.config,[ck]:v,curV:2});toast('Guardado');return}
   if(e.target.id==='svol'){const v=+e.target.value;lsSet('jl-svol',String(v));put('config','main',{...S.config,soundVol:v});sfx('check');return}
   if(e.target.id==='c-accent'){saveAccent(e.target.value.toLowerCase());return}
   if(e.target.id==='imp'&&e.target.files[0]){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);const d=o.data||o;if(!d||typeof d!=='object'||!COLS.some(k=>d[k]&&typeof d[k]==='object'))throw 0;d._n=COLS.reduce((a,k)=>a+Object.keys(d[k]||{}).length,0);ui.pending=d;renderDyn()}catch(err){toast('Ese archivo no es una copia de JuinLoks')}};r.readAsText(e.target.files[0]);e.target.value=''}});
@@ -2569,7 +2629,7 @@ document.addEventListener('keydown',e=>{if(!ui.sheet)return;if(e.key==='Escape')
 document.querySelectorAll('[data-ico]').forEach(el=>el.insertAdjacentHTML('afterbegin',svg(IC[el.dataset.ico])));
 {const m=lsGet('jl-more');if(MORE.includes(m))ui.lastMore=m}
 {const k=lsGet('jl-ktab');if(k==='notas'||k==='estudio')ui.ktab=k}
-{const f=lsGet('jl-tf');if(TF.some(x=>x[0]===f))ui.tf=f;const y=lsGet('jl-ttype');if(TTYPES.some(x=>x[0]===y))ui.ttype=y}
+{const f=lsGet('jl-tf');if(TF.some(x=>x[0]===f))ui.tf=f;const y=lsGet('jl-ttype');if(ttList().some(x=>x[0]===y))ui.ttype=y}
 {const v=lsGet('jl-tview');if(v==='cal'||v==='lista')ui.tview=v;const c=lsGet('jl-cview');ui.cview=['dia','semana','mes'].includes(c)?c:(window.matchMedia('(max-width:899px)').matches?'dia':'semana')}
 ui.anchor=today();
 {const m=lsGet('jl-pmode');if(m==='semana'||m==='mes')ui.pmode=m}
