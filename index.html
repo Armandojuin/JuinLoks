@@ -680,6 +680,9 @@ body.n-full-note .n-tb{justify-content:center}
 .n-saved{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:600;color:var(--muted);opacity:0;transition:opacity .25s ease;white-space:nowrap}
 .n-saved .ic{width:13px;height:13px;color:var(--accent)}
 .n-saved.show{opacity:1}
+.n-ghost{position:fixed;z-index:60;pointer-events:none;box-sizing:border-box;overflow:hidden;background:linear-gradient(160deg,color-mix(in srgb,var(--fc) 30%,var(--surface)),var(--surface) 60%);border:1px solid color-mix(in srgb,var(--fc) 70%,var(--line));box-shadow:0 24px 60px -18px color-mix(in srgb,var(--fc) 60%,transparent),0 0 0 4px color-mix(in srgb,var(--fc) 18%,transparent)}
+.n-ghost::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fc)}
+.n-gt{display:block;padding:14px 18px;font:700 1.05rem var(--f-display);color:var(--ink);transform-origin:0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* ---------- bienvenida al abrir la app ---------- */
 .splash{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--bg);animation:jlSpOut .5s cubic-bezier(.4,0,.2,1) 1.65s forwards;cursor:pointer}
 .splash.skip{animation:jlSpOut .3s ease forwards}
@@ -1699,6 +1702,22 @@ function noteChanged(){NT.dirty=true;clearTimeout(NT.saveT);NT.saveT=setTimeout(
 function openNote(id,focus){if(NT.dirty)saveNote();NT.note=id;ui.armed=null;setLevel('editor');notesRefresh();
   const ed=document.getElementById('nEd');if(focus&&ed){ed.focus();const r=document.createRange();r.selectNodeContents(ed.firstElementChild||ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}
   if(window.matchMedia('(max-width:899px)').matches)window.scrollTo(0,0)}
+// animación al abrir: la tarjeta crece hasta convertirse en la nota y el contenido entra en cascada
+function noteZoom(from,fc,src){if(calm()||!from||!from.width)return;const edw=document.querySelector('.n-editor');if(!edw)return;sfx('open');
+  requestAnimationFrame(()=>{const to=edw.getBoundingClientRect();if(!to.width)return;
+    const g=document.createElement('div');g.className='n-ghost';g.style.setProperty('--fc',fc||'var(--accent)');
+    const tt=src&&src.querySelector('.n-ct');g.innerHTML=`<span class="n-gt">${esc(tt?tt.textContent:'')}</span>`;document.body.appendChild(g);
+    const r0=getComputedStyle(src).borderRadius||'16px',r1=getComputedStyle(edw).borderRadius||'0px';
+    const ease='cubic-bezier(.2,.85,.25,1)',D=480;
+    const box=r=>({left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+    src.animate([{opacity:1,transform:'scale(1)'},{opacity:.35,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],{duration:D+200,easing:'ease'});
+    const a=g.animate([{...box(from),borderRadius:r0,opacity:1},{...box(to),borderRadius:r1,opacity:1,offset:.78},{...box(to),borderRadius:r1,opacity:0}],{duration:D+160,easing:ease,fill:'forwards'});
+    g.querySelector('.n-gt').animate([{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(14px) scale(1.25)'}],{duration:D*.6,easing:ease,fill:'forwards'});
+    a.onfinish=()=>g.remove();setTimeout(()=>g.remove(),1500);
+    const bits=[...edw.querySelectorAll('.n-ehd,.n-tb,.n-info')],ed=document.getElementById('nEd'),kids=ed?[...ed.children].slice(0,9):[];
+    bits.forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],{duration:340,delay:D*.55+i*50,easing:ease,fill:'backwards'}));
+    kids.forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(16px)',filter:'blur(4px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:420,delay:D*.6+i*55,easing:ease,fill:'backwards'}));
+  })}
 function newNote(){const id=uid(),now=new Date().toISOString(),folder=S.folders[NT.folder]?NT.folder:'';NT.q='';NT.tag='';const q=document.getElementById('nq');if(q)q.value='';
   put('notes',id,{title:'Nota nueva',html:'<h1><br></h1>',folder,pinned:false,created:now,updated:now});openNote(id,true)}
 function edSel(){const s=getSelection();if(!s.rangeCount)return null;const ed=document.getElementById('nEd');const n=s.anchorNode;return ed&&n&&ed.contains(n)?s:null}
@@ -1925,7 +1944,7 @@ document.addEventListener('click',e=>{
   else if(a==='sheet')openSheet(b.dataset.k||'menu');
   else if(a==='ktab'){if(NT.dirty)saveNote();if(NT.full)setFull('');ui.ktab=b.dataset.t;lsSet('jl-ktab',ui.ktab);document.body.classList.remove('n-editing');renderStatic();document.getElementById('dyn').innerHTML='';renderDyn()}
   else if(a==='nFolder'){NT.casc=Date.now();NT.folder=b.dataset.f;NT.q='';NT.tag='';NT.editF=false;const q=document.getElementById('nq');if(q)q.value='';ui.armed=null;setLevel('list');notesRefresh()}
-  else if(a==='nOpen'){if(b.dataset.f)NT.folder=b.dataset.f;openNote(b.dataset.id,false)}
+  else if(a==='nOpen'){if(b.dataset.f)NT.folder=b.dataset.f;const from=b.getBoundingClientRect(),fc=getComputedStyle(b).getPropertyValue('--fc').trim();openNote(b.dataset.id,false);noteZoom(from,fc,b)}
   else if(a==='nFull'){const m=b.dataset.m;setFull(NT.full===m?'':m)}
   else if(a==='tview'){ui.tview=b.dataset.v;lsSet('jl-tview',ui.tview);ui.enterT=Date.now();renderDyn()}
   else if(a==='calView'){ui.cview=b.dataset.v;lsSet('jl-cview',ui.cview);ui.cscroll=null;renderDyn()}
