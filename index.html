@@ -752,6 +752,7 @@ body.n-full-note .n-tb{justify-content:center}
 .feed-err{margin:0;color:#ff8a80;font-size:.88rem}
 .feed-ok{margin:0;display:flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;color:var(--ink)}.feed-ok .ic{width:16px;height:16px;color:#22b46a}
 a.btn{text-decoration:none}
+.t-open{cursor:pointer;border-radius:8px}.t-open:hover .t{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}.t-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){.fill,.prog i{transition:width .3s ease}.tile,.panel{transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}}
 </style>
 
@@ -1112,7 +1113,7 @@ function ring(p,val,label,sub,aria){const C=2*Math.PI*27,d=(C*Math.max(0,Math.mi
 const streakPill=(n,bump)=>`<span class="streak${n?'':' zero'}${bump?' bump':''}" title="Racha: ${dias(n)}">${svg(IC.flame)}${n}</span>`;
 function habitRow(h,d){const on=doneOn(d,h.id);
   const j=justDid('h',h.id+'|'+d);
-  return `<div class="row"><button class="chk ${on?'on':''}${j?' just':''}" data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}" aria-pressed="${on}"></button><div class="grow"><div class="t">${esc(h.name)}${exTag(h)}</div></div>${h.time?`<span class="pill tm">${h.time}</span>`:''}${streakPill(streak(h.id),j&&on)}</div>`}
+  return `<div class="row"><button class="chk ${on?'on':''}${j?' just':''}" data-act="tog" data-d="${d}" data-h="${h.id}" aria-label="${on?'Desmarcar':'Marcar'} ${esc(h.name)}" aria-pressed="${on}"></button><div class="grow t-open" data-act="habSched" data-id="${esc(h.id)}" role="button" tabindex="0" title="Editar hábito"><div class="t">${esc(h.name)}${exTag(h)}</div></div>${h.time?`<span class="pill tm">${h.time}</span>`:''}${streakPill(streak(h.id),j&&on)}</div>`}
 function perfectDays(p){const hs=habitsSorted();return hs.length?elapsedOf(p).filter(d=>hs.every(h=>doneOn(d,h.id))).length:0}
 function perfectBanner(){const t=today(),hs=habitsSorted();if(!hs.length||!hs.every(h=>doneOn(t,h.id)))return '';
   const n=perfectDays(periodAt(t,'mes'));
@@ -1167,7 +1168,7 @@ function taskRow(r,o={}){const t=today(),over=!r.done&&r.date&&r.date<t,meta=[],
     if(!r.date||r.date<=t)acts.push(`<button class="btn sm ghost hide-touch" data-act="tmove" data-to="manana" data-id="${esc(r.id)}">Mañana</button>`)}
   const jt=justDid('t',r.id);
   const row=`<div class="row task${r.done?' done':''}${jt?' just':''}"><button class="chk round ${r.done?'on':''}${jt?' just':''}" data-act="ttog" data-id="${esc(r.id)}" aria-label="${r.done?'Desmarcar':'Marcar como hecha'}: ${esc(r.title)}" aria-pressed="${!!r.done}"></button>
-    <div class="grow"><div class="t">${esc(r.title)}${exTag(r)}</div>${meta.length?`<div class="s">${meta.join(' ')}</div>`:''}</div>
+    <div class="grow t-open" data-act="tedit" data-id="${esc(r.id)}" role="button" tabindex="0" title="Editar tarea"><div class="t">${esc(r.title)}${exTag(r)}</div>${meta.length?`<div class="s">${meta.join(' ')}</div>`:''}</div>
     ${o.compact?'':`<div class="tacts">${acts.join('')}${delBtn('tasks',r.id)}</div>`}</div>`;
   return `<div class="swrap${jt?' jin':''}" data-swipe="${esc(r.id)}" data-done="${r.done?1:0}"><div class="swbg" aria-hidden="true"><span class="sl">${svg(IC.check)}${r.done?'Pendiente':'Hecha'}</span><span class="sr">Mañana${svg(IC.arrow)}</span></div>${row}</div>`}
 /* ---------- calendario (tareas y hábitos con hora) ---------- */
@@ -1309,7 +1310,7 @@ dyn(){
   </div>
   <div class="hgrid">${info.map(({h,c,target,pct})=>`<section class="panel" aria-label="${esc(h.name)}">
     <div class="hd"><div style="min-width:0"><h2>${esc(h.name)}${exTag(h)}</h2><span class="muted" style="font-size:.85rem">${c} de ${target} días · ${h.time?'a las '+h.time:'sin hora'} · ${habitDays(h).length===7?'todos los días':habitDays(h).map(x=>WD.find(w=>+w[0]===x)[1]).join(' ')}</span></div>
-      <div class="hcount"><button class="n-ic" data-act="habSched" data-id="${esc(h.id)}" aria-label="Horario de ${esc(h.name)}" title="Hora y días">${svg(IC.clock)}</button>${streakPill(streak(h.id))}${delBtn('habits',h.id)}</div></div>
+      <div class="hcount"><button class="n-ic" data-act="habSched" data-id="${esc(h.id)}" aria-label="Editar ${esc(h.name)}" title="Editar hábito">${svg(IC.edit)}</button>${streakPill(streak(h.id))}${delBtn('habits',h.id)}</div></div>
     <div class="calgrid">${['L','M','X','J','V','S','D'].map(x=>`<span class="wd">${x}</span>`).join('')}${month?'<span></span>'.repeat(off):''}${ds.map(d=>cell(h,d)).join('')}</div>
     <div class="bar" style="grid-template-columns:1fr auto"><div class="track"><div class="fill" style="width:${Math.min(100,pct)}%"></div></div><span class="num">${pct}%</span></div>
   </section>`).join('')}</div>`;
@@ -1459,12 +1460,13 @@ const SHEETS={
     <div class="sh-btns"><button type="button" class="btn ghost" data-act="editDone">${svg(IC.check)}${r.done?'Marcar pendiente':'Marcar hecha'}</button><button type="button" class="btn ghost" data-act="icsOne">${svg(IC.cal)}Calendario de Apple</button><button type="button" class="btn ghost${ui.armed==='edit'?' armed':''}" data-act="editDel">${ui.armed==='edit'?'¿Borrar?':'Borrar'}</button></div></form>`},
   habitslot:()=>{const h=ui.edit&&S.habits[ui.edit.id];if(!h)return `<div class="sh-hd"><h2>Hábito</h2>${closeBtn()}</div><p class="muted">Este hábito ya no existe.</p>`;
     const d=ui.edit.d||today(),done=doneOn(d,ui.edit.id),ds=habitDays(h);
-    return `<div class="sh-hd"><h2>${esc(h.name)}</h2>${closeBtn()}</div>
+    return `<div class="sh-hd"><h2>Editar hábito</h2>${closeBtn()}</div>
     ${d<=today()?`<button type="button" class="btn big${done?' ghost':''}" data-act="editHabDone">${svg(IC.check)}${done?'Hecho · toca para desmarcar':'Marcar como hecho · '+dayLabel(d).toLowerCase()}</button>`:''}
-    <form class="sh-f" data-form="habitslot"><div class="lbl">Qué días</div>
+    <form class="sh-f" data-form="habitslot"><input name="name" required maxlength="60" value="${esc(h.name)}" aria-label="Nombre del hábito" autocomplete="off">
+    <div class="lbl">Qué días</div>
     <div class="chips" role="group" aria-label="Qué días">${WD.map(([v,l])=>`<label class="chip num1"><input type="checkbox" name="days" value="${v}"${ds.includes(+v)?' checked':''}><span>${l}</span></label>`).join('')}</div>
     <div class="sh-row"><label class="fld">Hora<input type="time" name="time" value="${esc(h.time||'')}"></label><label class="fld">Duración<select name="dur">${DURS.map(([m,l])=>`<option value="${m}"${m===(+h.dur||30)?' selected':''}>${l}</option>`).join('')}</select></label></div>
-    <button class="btn big" type="submit">Guardar horario</button>
+    <button class="btn big" type="submit">Guardar cambios</button>
     <div class="sh-btns"><button type="button" class="btn ghost" data-act="icsOne">${svg(IC.cal)}Calendario de Apple</button>${h.time?'<button type="button" class="btn ghost" data-act="habClear">Quitar la hora</button>':''}</div></form>`},
   apple:()=>`<div class="sh-hd"><h2>Calendario de Apple</h2>${closeBtn()}</div>
     <section class="ap-opt"><h3>${svg(IC.cal)}Suscripción automática</h3><p class="muted">Tus tareas con fecha y tus hábitos con hora aparecen en un calendario «JuinLoks» en el iPhone y en el Mac, y se actualizan solos. Funciona en un sentido: los cambios se hacen en JuinLoks.</p><div id="feedBox" class="feed-box"><button class="btn" data-act="makeFeed">Crear enlace de suscripción</button></div></section>
@@ -1912,6 +1914,7 @@ document.addEventListener('click',e=>{
   else if(a==='calToday'){ui.cdate=today();ui.cscroll=null;renderDyn()}
   else if(a==='calDay'){ui.cdate=b.dataset.d;ui.cview='dia';lsSet('jl-cview','dia');renderDyn()}
   else if(a==='calEv'){ui.armed=null;if(b.dataset.k==='t'){ui.edit={k:'t',id:b.dataset.id};openSheet('taskedit')}else{ui.edit={k:'h',id:b.dataset.id,d:b.dataset.d};openSheet('habitslot')}}
+  else if(a==='tedit'){if(Date.now()-(ui.swipedAt||0)<400)return;ui.armed=null;ui.edit={k:'t',id:b.dataset.id};openSheet('taskedit')}
   else if(a==='habSched'){ui.edit={k:'h',id:b.dataset.id,d:today()};openSheet('habitslot')}
   else if(a==='editDone'){const r=S.tasks[ui.edit.id];if(r){const done=!r.done;sfx(done?'check':'uncheck');markJust('t',ui.edit.id);put('tasks',ui.edit.id,{...r,done,doneAt:done?today():''});closeSheet();toast(done?'Tarea hecha':'Tarea pendiente')}}
   else if(a==='editDel'){if(ui.armed==='edit'){ui.armed=null;sfx('delete');del('tasks',ui.edit.id);closeSheet();toast('Tarea borrada')}else{ui.armed='edit';document.getElementById('sheetBody').innerHTML=SHEETS.taskedit()}}
@@ -1983,7 +1986,7 @@ document.addEventListener('submit',e=>{
     const date=k==='taskq'?today():(v.date||'');f.title.value='';if(f.imp)f.imp.checked=false;
     put('tasks',uid(),{title,date,imp:!!v.imp,done:false,doneAt:'',created:new Date().toISOString()});toast(date?'Tarea añadida para '+dayLabel(date).toLowerCase():'Tarea guardada sin fecha')}
   else if(k==='taskedit'){const r=S.tasks[ui.edit.id];if(r){put('tasks',ui.edit.id,{...r,title:(v.title||'').trim()||r.title,date:v.date||(v.time?today():''),time:v.time||'',dur:+v.dur||60,imp:!!v.imp});closeSheet();toast('Tarea actualizada')}}
-  else if(k==='habitslot'){const h=S.habits[ui.edit.id];const days=new FormData(f).getAll('days').map(Number);if(!days.length){toast('Elige al menos un día');return}if(h){put('habits',ui.edit.id,{...h,time:v.time||'',dur:+v.dur||30,days,goal:days.length});closeSheet();toast(v.time?'Horario guardado: '+v.time:'Días guardados')}}
+  else if(k==='habitslot'){const h=S.habits[ui.edit.id];const days=new FormData(f).getAll('days').map(Number);if(!days.length){toast('Elige al menos un día');return}if(h){const name=(v.name||'').trim()||h.name;put('habits',ui.edit.id,{...h,name,time:v.time||'',dur:+v.dur||30,days,goal:days.length});closeSheet();toast('Hábito actualizado')}}
   else if(k==='habit'){const days=new FormData(f).getAll('days').map(Number);if(!days.length){toast('Elige al menos un día');return}put('habits',uid(),{name:v.name.trim(),goal:days.length,days,time:v.time||'',dur:+v.dur||30,created:new Date().toISOString()});f.reset();toast('Hábito añadido')}
   else if(k==='sleep'){put('sleep',v.date,{bed:v.bed,wake:v.wake,quality:+v.quality,note:v.note.trim()});f.note.value='';showDate(v.date);toast(`Noche guardada: ${fmtH(sleepHours(v.bed,v.wake))}`)}
   else if(k==='money'){const amt=Math.round(+v.amount*100)/100;if(!(amt>0)){toast('Escribe una cantidad mayor que cero');return}
@@ -1999,11 +2002,12 @@ document.addEventListener('submit',e=>{
   document.addEventListener('pointermove',e=>{if(!st||e.pointerId!==st.id)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!st.on){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.3){st.on=true;st.w.classList.add('dragging')}else if(Math.abs(dy)>10){st=null;return}else return}
     st.dx=Math.max(-150,Math.min(150,dx));st.row.style.transform=`translateX(${st.dx}px)`;st.w.classList.toggle('to-r',st.dx>0);st.w.classList.toggle('to-l',st.dx<0);st.w.classList.toggle('arm',Math.abs(st.dx)>85)});
-  const end=()=>{if(!st)return;const{w,row,dx,on}=st;st=null;if(!on)return;w.classList.remove('dragging','to-r','to-l','arm');row.style.transform='';
+  const end=()=>{if(!st)return;const{w,row,dx,on}=st;st=null;if(!on)return;ui.swipedAt=Date.now();w.classList.remove('dragging','to-r','to-l','arm');row.style.transform='';
     const id=w.dataset.swipe,r=S.tasks[id];if(!r)return;
     if(dx>85){const done=!r.done;sfx(done?'check':'uncheck');markJust('t',id);put('tasks',id,{...r,done,doneAt:done?today():''});const tk=tasksToday();if(done&&!tk.pend.length&&tk.done.length>=2){toast('¡Has terminado todas las tareas de hoy!');confetti()}else toast(done?'Tarea hecha':'Tarea pendiente otra vez')}
     else if(dx<-85&&!r.done){sfx('success');put('tasks',id,{...r,date:addDays(today(),1)});toast('Movida a mañana')}};
   document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end)})();
+document.addEventListener('keydown',e=>{const rb=e.target.closest&&e.target.closest('[role=button][data-act]');if(rb&&(e.key==='Enter'||e.key===' ')&&!ui.sheet){e.preventDefault();rb.click();return}});
 document.addEventListener('keydown',e=>{if(!ui.sheet)return;if(e.key==='Escape'){closeSheet();return}
   if((ui.sheet==='gasto'||ui.sheet==='ingreso')&&!(e.target.matches&&e.target.matches('input,textarea'))){if(/^[0-9]$/.test(e.key))pressKey(e.key);else if(e.key===','||e.key==='.')pressKey(',');else if(e.key==='Backspace')pressKey('back');else if(e.key==='Enter')document.getElementById('saveMoney')?.click();else return;e.preventDefault()}});
 document.querySelectorAll('[data-ico]').forEach(el=>el.insertAdjacentHTML('afterbegin',svg(IC[el.dataset.ico])));
