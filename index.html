@@ -788,6 +788,32 @@ body.n-full-note .n-tb{justify-content:center}
 a.btn{text-decoration:none}
 .t-open{cursor:pointer;border-radius:8px}.t-open:hover .t{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}.t-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .agenda .btn .ic{width:15px;height:15px}
+.aj-prof{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface) 62%)}
+.aj-av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--accent);color:var(--on-accent);font:700 1.3rem var(--f-display);box-shadow:0 0 0 4px var(--glow-soft),0 8px 24px -8px var(--glow)}
+.aj-tx{flex:1;min-width:0;display:grid;gap:2px}.aj-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.aj-tx>span{font-size:.8rem;color:var(--muted)}
+.aj-pa{display:flex;gap:6px;align-items:center;flex:none}
+.aj-grid{display:grid;gap:16px;align-items:start}@media (min-width:900px){.aj-grid{grid-template-columns:1fr 1fr}.aj-wide{grid-column:1/-1}}
+.panel.aj{gap:12px}.panel.aj>h2{margin:0;font-size:1.02rem}
+.aj-row{display:flex;align-items:center;gap:12px;min-height:44px}
+.aj-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--glow-soft);color:var(--accent)}.aj-ic .ic{width:18px;height:18px}
+.aj-row+.aj-row{border-top:1px solid var(--line);padding-top:10px}
+.stepper{display:flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:99px;padding:2px;background:var(--sunk);flex:none}
+.stepper button{width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:var(--ink);font:600 1.1rem var(--f-body);cursor:pointer}.stepper button:active{background:var(--glow-soft);transform:scale(.92)}
+.stepper span{min-width:58px;text-align:center;font:600 .86rem var(--f-mono)}
+.aj-in{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:12px;padding:0 10px;background:var(--sunk);flex:none}.aj-in input{width:84px;border:0;background:transparent;padding:8px 0;text-align:right;font:600 .9rem var(--f-mono);color:var(--ink);outline:none;box-shadow:none}.aj-in span{color:var(--muted);font-size:.85rem}
+.aj-in:focus-within{border-color:var(--accent)}
+.aj-cur{display:flex;gap:4px;align-items:center;flex:none}.aj-cur button{width:36px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--sunk);color:var(--ink);font:600 .95rem var(--f-body);cursor:pointer}
+.aj-cur button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.aj-cur input{width:56px;padding:7px 8px;border-radius:10px;font-size:.85rem;text-align:center}
+.sw-t{position:relative;width:50px;height:30px;border-radius:99px;border:0;background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;flex:none;transition:background .25s}
+.sw-t i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .25s var(--e-spring)}
+.sw-t[aria-checked="true"]{background:var(--accent)}.sw-t[aria-checked="true"] i{transform:translateX(20px);background:var(--on-accent)}
+.svol.off{opacity:.45}.aj-note{margin:0;font-size:.84rem}
+.aj-th{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}.aj-th button{justify-content:center}
+.sw-o{position:relative;overflow:hidden;cursor:pointer}.sw-o input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.aj-link{display:block;width:100%;border:0;background:none;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:12px}.aj-link:hover .aj-go{transform:translateX(3px)}.aj-go{width:18px;height:18px;color:var(--muted);transition:transform .2s var(--e-out)}
+.aj-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.aj-stats>div{display:grid;gap:2px;padding:10px 12px;border-radius:14px;background:var(--sunk);border:1px solid var(--line)}.aj-stats b{font:600 .95rem var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-stats span{font-size:.72rem;color:var(--muted)}
+.aj-btns{display:flex;gap:10px;flex-wrap:wrap}.aj-btns .ic{width:16px;height:16px}.aj-btns label.btn{display:inline-flex;align-items:center}
+.aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
 .st-go:active{transform:scale(.98)}.st-go .ic{width:22px;height:22px;flex:none;color:var(--accent)}.st-go>span{display:grid;gap:1px}.st-go b{font-size:.98rem}.st-go>span>span{font-size:.8rem;color:var(--muted)}
@@ -1260,7 +1286,7 @@ const SOUNDS={
   celebrate:c=>{[523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>{tone(c,{f,t:i*.075,d:.55,g:.1});tone(c,{f:f*2,t:i*.075,d:.25,g:.025})});noise(c,{t:.3,d:.7,g:.035,f:5000,f2:9500,q:.5})}
 };
 const HAPT={check:12,success:[10,40,14],delete:[18,30,18],coin:14,celebrate:[12,50,12,50,24],drag:8};
-function haptic(n){try{const v=HAPT[n];if(v&&navigator.vibrate&&window.matchMedia('(pointer:coarse)').matches)navigator.vibrate(v)}catch(_){}}
+function haptic(n){if(S.config.haptic===false)return;try{const v=HAPT[n];if(v&&navigator.vibrate&&window.matchMedia('(pointer:coarse)').matches)navigator.vibrate(v)}catch(_){}}
 function sfx(name){haptic(name);if(!sfxOn()||!SOUNDS[name])return;const c=actx();if(!c)return;SFX.out.gain.value=sfxVol();try{SOUNDS[name](c)}catch(_){}}
 function confetti(){sfx('celebrate');if(calm())return;try{navigator.vibrate&&navigator.vibrate([18,40,18])}catch(_){}
   const c=document.createElement('canvas'),x=c.getContext('2d'),W=c.width=innerWidth*devicePixelRatio,H=c.height=innerHeight*devicePixelRatio;
@@ -2122,34 +2148,51 @@ dyn(){
 
 V.conocimiento={form:()=>ui.ktab==='estudio'?estudioView.form():'',dyn(){return ktabs()+(ui.ktab==='estudio'?estudioView.dyn():notesShell())}};
 
-V.ajustes={form:()=>`<div class="panel"><div class="hd"><h2>Ajustes</h2></div>
-  <form class="f" data-form="settings"><label class="fld">Símbolo de moneda<input id="c-cur" name="currency" maxlength="4" placeholder="€"></label>
-  <label class="fld">Meta de sueño (horas)<input id="c-sleep" name="sleepGoal" type="number" step="0.5" min="4" max="12"></label>
-  <label class="fld">Presupuesto mensual de gastos<input id="c-budget" name="budget" type="number" min="0" step="1"></label>
-  <label class="fld">Meta de estudio semanal (min)<input id="c-study" name="studyGoal" type="number" min="0" step="15"></label>
-  <button class="btn" type="submit">Guardar ajustes</button></form>
-  <p class="muted" style="margin:0">Las metas semanales se escalan solas cuando ves el mes. Tus datos se guardan en tu base de datos y se sincronizan entre tus dispositivos. Cada dispositivo guarda una copia para funcionar sin conexión.</p></div>`,
+V.ajustes={form:()=>'',
 dyn(){let cur=(S.config.accent||'#ffffff').toLowerCase();if(cur==='#0a0a0a')cur='#ffffff';
-  const last=lsGet('jl-lastexport');const pend=ui.pending;const pc=pendingCount();
-  const acct=user?`<div class="panel"><div class="hd"><h2>Cuenta y sincronización</h2><span class="sync ${syncState}">${{ok:'Sincronizado',saving:'Guardando…',offline:'Sin conexión',error:'Error al sincronizar',off:''}[syncState]||''}</span></div>
-  <p style="margin:0">Conectado como <strong>${esc(user.email||'')}</strong></p>
-  <p class="muted" style="margin:0">${pc?pc+' cambios pendientes de subir. ':'Todo está subido. '}${lastSync?'Última sincronización: '+lastSync.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})+'.':''}${syncState==='error'&&syncMsg?' Detalle: '+esc(syncMsg):''}</p>
-  <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="syncNow">Sincronizar ahora</button><button class="btn ghost${ui.armed==='logout'?' armed':''}" data-act="logout">${ui.armed==='logout'?(pc?'Hay cambios sin subir. ¿Salir igualmente?':'¿Cerrar sesión?'):'Cerrar sesión'}</button></div></div>`:'';
-  return acct+`<div class="panel"><div class="hd"><h2>Copia de seguridad</h2><span class="muted">${last?'Última copia: '+shortDate(last):'Aún no has descargado ninguna copia'}</span></div>
-  <p class="muted" style="margin:0">Además de la sincronización, puedes guardar tus datos en un archivo. También sirve para traer lo que anotaste en la versión anterior de JuinLoks.</p>
-  <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="export">Descargar copia</button><label class="btn ghost" style="display:inline-flex;align-items:center" for="imp">Importar copia</label><input id="imp" type="file" accept="application/json,.json" hidden></div>
-  ${pend?`<div class="notice" style="margin:0"><span>Esta copia tiene <strong>${pend._n} registros</strong>. Importarla <strong>reemplazará</strong> todos tus datos actuales.</span><button class="btn sm" data-act="impOk">Reemplazar mis datos</button><button class="btn sm ghost" data-act="impCancel">Cancelar</button></div>`:''}</div>
-  <div class="panel"><div class="hd"><h2>Sonidos</h2><span class="muted">Al marcar, guardar y celebrar</span></div>
-  <div class="themeseg" role="group" aria-label="Sonidos"><button data-act="sound" data-v="1" aria-pressed="${sfxOn()}">Activados</button><button data-act="sound" data-v="0" aria-pressed="${!sfxOn()}">Desactivados</button></div>
-  <div class="svol"><label for="svol">Volumen</label><input id="svol" type="range" min="0" max="1" step="0.05" value="${sfxVol()}"${sfxOn()?'':' disabled'}><button class="btn sm ghost" data-act="sfxTest"${sfxOn()?'':' disabled'}>Probar</button></div>
-  <p class="muted" style="margin:0;font-size:.88rem">En el iPhone se silencian con el interruptor de silencio y no cortan tu música.</p></div>
-  <div class="panel"><div class="hd"><h2>Apariencia</h2><span class="muted">También con el botón junto al logo</span></div>
-  <div class="themeseg" role="group" aria-label="Tema">${THEMES.map(([k,l])=>`<button data-act="theme" data-t="${k}" aria-pressed="${curTheme()===k}">${svg(k==='auto'?IC.autoT:k==='light'?IC.sun:IC.moonS)}${l}</button>`).join('')}</div>
-  <p class="muted" style="margin:0;font-size:.88rem">«Automático» usa el modo claro u oscuro de tu móvil u ordenador.</p></div>
-  <div class="panel"><div class="hd"><h2>Color de los detalles</h2><span class="muted">Botones, gráficos y marcas</span></div>
-  <div class="swatches">${ACCENTS.map(([n,c])=>`<button class="sw ${cur===c?'on':''}" style="background:${c}" data-act="accent" data-c="${c}" aria-label="${n}" title="${n}"></button>`).join('')}
-  <label class="fld" style="grid-auto-flow:column;align-items:center;gap:8px">Otro<input id="c-accent" type="color" value="${esc(cur)}" style="width:44px;height:34px;padding:2px"></label></div></div>`}};
+  const c=cfg(),last=lsGet('jl-lastexport'),pend=ui.pending,pc=pendingCount();
+  const recs=COLS.reduce((a,k)=>a+Object.keys(S[k]).length,0);let kb=0;try{kb=Math.round(((localStorage.getItem(CACHE)||'').length*2)/1024)}catch(_){}
+  const syncTxt={ok:'Sincronizado',saving:'Guardando…',offline:'Sin conexión',error:'Error al sincronizar',off:''}[syncState]||'';
+  const sw=(on,act,v,lbl)=>`<button class="sw-t" role="switch" aria-checked="${on}" aria-label="${lbl}" data-act="${act}" data-v="${v}"><i></i></button>`;
+  const step=(k,val,d,lbl)=>`<div class="stepper" role="group" aria-label="${lbl}"><button data-act="cfgStep" data-k="${k}" data-d="${-d}" aria-label="Menos">−</button><span>${val}</span><button data-act="cfgStep" data-k="${k}" data-d="${d}" aria-label="Más">+</button></div>`;
+  const row=(ic,t,sub,ctrl)=>`<div class="aj-row">${ic?`<span class="aj-ic">${svg(ic)}</span>`:''}<div class="aj-tx"><b>${t}</b>${sub?`<span>${sub}</span>`:''}</div>${ctrl}</div>`;
+  const ini=((user&&user.email)||'?').charAt(0).toUpperCase();
+  return `${user?`<section class="aj-prof"><span class="aj-av">${esc(ini)}</span><div class="aj-tx"><b>${esc(user.email||'')}</b><span><span class="sync ${syncState}">${syncTxt}</span>${pc?` · ${pc} cambios por subir`:lastSync?` · ${lastSync.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}`:''}${syncState==='error'&&syncMsg?' · '+esc(syncMsg):''}</span></div>
+    <div class="aj-pa"><button class="n-ic" data-act="syncNow" aria-label="Sincronizar ahora" title="Sincronizar ahora">${svg(IC.sync||IC.arrow)}</button><button class="btn sm ghost${ui.armed==='logout'?' armed':''}" data-act="logout">${ui.armed==='logout'?(pc?'Hay cambios sin subir. ¿Salir?':'¿Cerrar sesión?'):'Salir'}</button></div></section>`:''}
+  <div class="aj-grid">
+  <section class="panel aj"><h2>Apariencia</h2>
+    <div class="themeseg aj-th" role="group" aria-label="Tema">${THEMES.map(([k,l])=>`<button data-act="theme" data-t="${k}" aria-pressed="${curTheme()===k}">${svg(k==='auto'?IC.autoT:k==='light'?IC.sun:IC.moonS)}${l}</button>`).join('')}</div>
+    <div class="lbl">Color de los detalles</div>
+    <div class="swatches">${ACCENTS.map(([n,co])=>`<button class="sw ${cur===co?'on':''}" style="background:${co}" data-act="accent" data-c="${co}" aria-label="${n}" title="${n}"></button>`).join('')}
+    <label class="sw sw-o${ACCENTS.some(x=>x[1]===cur)?'':' on'}" title="Otro color" style="background:conic-gradient(#f44,#fd4,#4f6,#4df,#46f,#d4f,#f44)"><input id="c-accent" type="color" value="${esc(cur)}" aria-label="Otro color"></label></div>
+  </section>
+  <section class="panel aj"><h2>Metas</h2>
+    ${row(IC.moon,'Sueño','horas por noche',step('sleepGoal',(+c.sleepGoal||8).toLocaleString('es-ES')+' h',.5,'Meta de sueño'))}
+    ${row(IC.book,'Estudio','a la semana',step('studyGoal',(+c.studyGoal?fmtMin(+c.studyGoal):'—'),30,'Meta de estudio'))}
+    ${row(IC.dinero||IC.out,'Presupuesto','gasto máximo al mes',`<label class="aj-in"><input data-cfg="budget" type="number" inputmode="decimal" min="0" step="10" value="${+c.budget||''}" placeholder="Sin límite" aria-label="Presupuesto mensual"><span>${esc(c.currency)}</span></label>`)}
+    ${row(null,'Moneda','',`<div class="aj-cur">${['€','$','£'].map(x=>`<button data-act="cfgCur" data-v="${x}" aria-pressed="${c.currency===x}">${x}</button>`).join('')}<input data-cfg="currency" maxlength="4" value="${['€','$','£'].includes(c.currency)?'':esc(c.currency)}" placeholder="Otra" aria-label="Otra moneda"></div>`)}
+  </section>
+  <section class="panel aj"><h2>Sonido y vibración</h2>
+    ${row(IC.bell||IC.spark,'Sonidos','al marcar, guardar y celebrar',sw(sfxOn(),'sound',sfxOn()?0:1,'Sonidos'))}
+    <div class="svol${sfxOn()?'':' off'}"><label for="svol">Volumen</label><input id="svol" type="range" min="0" max="1" step="0.05" value="${sfxVol()}"${sfxOn()?'':' disabled'}><button class="btn sm ghost" data-act="sfxTest"${sfxOn()?'':' disabled'}>Probar</button></div>
+    ${row(IC.phone||IC.spark,'Vibración','en móviles Android',sw(S.config.haptic!==false,'haptic',S.config.haptic!==false?0:1,'Vibración'))}
+    <p class="muted aj-note">En el iPhone los sonidos respetan el interruptor de silencio y no cortan tu música.</p>
+  </section>
+  <section class="panel aj"><h2>Calendario</h2>
+    <button class="aj-link" data-act="sheet" data-k="apple">${row(IC.cal,'Calendario de Apple o Google','ver tus tareas y hábitos con hora',svg(IC.arrow,'ic aj-go'))}</button>
+  </section>
+  <section class="panel aj aj-wide"><h2>Tus datos</h2>
+    <div class="aj-stats"><div><b>${recs.toLocaleString('es-ES')}</b><span>registros</span></div><div><b>${kb.toLocaleString('es-ES')} KB</b><span>en este dispositivo</span></div><div><b>${last?shortDate(last):'nunca'}</b><span>última copia</span></div></div>
+    <p class="muted aj-note">Todo se sincroniza solo entre tus dispositivos y funciona sin conexión. Además puedes guardar una copia en un archivo.</p>
+    <div class="aj-btns"><button class="btn" data-act="export">${svg(IC.down||IC.arrow)}Descargar copia</button><label class="btn ghost" for="imp">Importar copia</label><input id="imp" type="file" accept="application/json,.json" hidden></div>
+    ${pend?`<div class="notice" style="margin:0"><span>Esta copia tiene <strong>${pend._n} registros</strong>. Importarla <strong>reemplazará</strong> todos tus datos actuales.</span><button class="btn sm" data-act="impOk">Reemplazar mis datos</button><button class="btn sm ghost" data-act="impCancel">Cancelar</button></div>`:''}
+  </section>
+  </div>
+  <p class="aj-foot">JuinLoks · hecho a tu medida</p>`}};
 const THEMES=[['auto','Automático'],['light','Claro'],['dark','Oscuro']];
+IC.sync='<path d="M20 11a8 8 0 0 0-14.5-4.5M4 4v3.5h3.5M4 13a8 8 0 0 0 14.5 4.5M20 20v-3.5h-3.5"/>';
+IC.bell='<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>';
+IC.phone='<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>';
 IC.play='<path d="M8 5.5v13l10.5-6.5z"/>';
 IC.sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>';
 IC.moonS='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
@@ -2307,6 +2350,9 @@ document.addEventListener('click',e=>{
   else if(a==='impCancel'){ui.pending=null;renderDyn()}
   else if(a==='accent'){saveAccent(b.dataset.c)}
   else if(a==='sound'){const on=b.dataset.v==='1';lsSet('jl-sound',on?'1':'0');put('config','main',{...S.config,sound:on});if(on)sfx('success')}
+  else if(a==='cfgStep'){const k=b.dataset.k,d=+b.dataset.d,c=cfg();let v=(+c[k]||(k==='sleepGoal'?8:0))+d;v=k==='sleepGoal'?Math.max(4,Math.min(12,v)):Math.max(0,Math.min(1800,v));put('config','main',{...S.config,[k]:v});sfx('tap')}
+  else if(a==='cfgCur'){put('config','main',{...S.config,currency:b.dataset.v,curV:2});sfx('tap')}
+  else if(a==='haptic'){const on=b.dataset.v==='1';put('config','main',{...S.config,haptic:on});if(on)haptic('success')}
   else if(a==='sfxTest'){sfx('check');setTimeout(()=>sfx('coin'),380);setTimeout(()=>sfx('celebrate'),800)}
   else if(a==='theme'){saveTheme(b.dataset.t,b)}
   else if(a==='themeCycle'){saveTheme(isDarkNow()?'light':'dark',b)}
@@ -2316,7 +2362,8 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='rpIn'){const o=document.getElementById('rpOut');if(o)o.textContent=e.target.value+' %'}
   if(e.target.id==='tn-title'){const pv=document.getElementById('tnPrev');if(pv)pv.innerHTML=e.target.value.trim()?taskPreview(e.target.value):''}});
-document.addEventListener('change',e=>{if(e.target.id==='svol'){const v=+e.target.value;lsSet('jl-svol',String(v));put('config','main',{...S.config,soundVol:v});sfx('check');return}
+document.addEventListener('change',e=>{const ck=e.target.dataset&&e.target.dataset.cfg;if(ck){let v=e.target.value.trim();if(ck==='budget')v=Math.max(0,Math.round(+v||0));else if(ck==='currency'){if(!v)return;v=v.slice(0,4)}put('config','main',{...S.config,[ck]:v,curV:2});toast('Guardado');return}
+  if(e.target.id==='svol'){const v=+e.target.value;lsSet('jl-svol',String(v));put('config','main',{...S.config,soundVol:v});sfx('check');return}
   if(e.target.id==='c-accent'){saveAccent(e.target.value.toLowerCase());return}
   if(e.target.id==='imp'&&e.target.files[0]){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);const d=o.data||o;if(!d||typeof d!=='object'||!COLS.some(k=>d[k]&&typeof d[k]==='object'))throw 0;d._n=COLS.reduce((a,k)=>a+Object.keys(d[k]||{}).length,0);ui.pending=d;renderDyn()}catch(err){toast('Ese archivo no es una copia de JuinLoks')}};r.readAsText(e.target.files[0]);e.target.value=''}});
 function showDate(d){if(!inP(d,P())){ui.anchor=d;renderDyn()}}
