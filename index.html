@@ -2030,10 +2030,33 @@ function saveNote(){clearTimeout(NT.saveT);if(!NT.note||!NT.dirty)return;const e
   NT.dirty=false;ed.dataset.v=now;put('notes',NT.note,{...n,html,title:title.slice(0,90),updated:now});
   const sv=document.getElementById('nSaved');if(sv){sv.classList.remove('show');void sv.offsetWidth;sv.classList.add('show');clearTimeout(NT.svT);NT.svT=setTimeout(()=>sv.classList.remove('show'),1400)}}
 function noteChanged(){NT.dirty=true;clearTimeout(NT.saveT);NT.saveT=setTimeout(saveNote,700)}
-function openNote(id,focus){if(NT.dirty)saveNote();NT.note=id;NT.menu=false;ui.armed=null;setLevel('editor');notesRefresh();
+function openNote(id,focus){const y0=window.scrollY;if(NT.dirty)saveNote();if(NT.level!=='editor')NT.listY=y0;NT.note=id;NT.menu=false;ui.armed=null;setLevel('editor');notesRefresh();
   const ed=document.getElementById('nEd');if(focus&&ed){ed.focus();const r=document.createRange();r.selectNodeContents(ed.firstElementChild||ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}
   if(window.matchMedia('(max-width:899px)').matches)window.scrollTo(0,0)}
 // animación al abrir: la tarjeta crece hasta convertirse en la nota y el contenido entra en cascada
+// al cerrar: el contenido se desvanece y la nota se encoge hasta su tarjeta (lo mismo que al abrir, al revés)
+function noteZoomBack(){const id=NT.note,nt=S.notes[id],edw=document.querySelector('.n-editor');
+  const finish=()=>{NT.note=null;setLevel('list');notesRefresh();window.scrollTo(0,NT.listY||0)};
+  if(!edw||!nt){finish();return}
+  NT.closing=true;sfx('tap');const ease='cubic-bezier(.32,.72,0,1)',D=380;
+  const from=edw.getBoundingClientRect(),f=S.folders[nt.folder],fc=f?fColor(f):'var(--accent)',r1=getComputedStyle(edw).borderRadius||'0px';
+  const ed=document.getElementById('nEd'),kids=[...(ed?[...ed.children].slice(0,9).reverse():[]),...edw.querySelectorAll('.n-info,.n-tb,.n-ehd')];
+  kids.forEach((el,i)=>el.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:'translateY(10px)',filter:'blur(3px)'}],{duration:170,delay:i*14,easing:'ease-in',fill:'forwards'}));
+  setTimeout(()=>{
+    kids.forEach(el=>el.getAnimations().forEach(a=>a.cancel()));
+    finish();
+    const card=document.querySelector(`#nNotes [data-act=nOpen][data-id="${CSS.escape(id)}"]`)||document.querySelector(`#nNotes [data-act=nOpen]`);
+    const to=card&&card.getBoundingClientRect();
+    if(!card||!to.width||to.bottom<0||to.top>innerHeight){NT.closing=false;return}
+    const g=document.createElement('div');g.className='n-ghost';g.style.setProperty('--fc',fc);g.innerHTML=`<span class="n-gt">${esc(nt.title||'Nota nueva')}</span>`;document.body.appendChild(g);
+    const r0=getComputedStyle(card).borderRadius||'16px',box=r=>({left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+    card.style.opacity='0';
+    const a=g.animate([{...box(from),borderRadius:r1,opacity:1},{...box(to),borderRadius:r0,opacity:1,offset:.82},{...box(to),borderRadius:r0,opacity:0}],{duration:D+120,easing:ease,fill:'forwards'});
+    g.querySelector('.n-gt').animate([{opacity:0,transform:'translateY(14px) scale(1.25)'},{opacity:1,transform:'none'}],{duration:D*.7,easing:ease,fill:'forwards'});
+    const others=[...document.querySelectorAll('#nNotes [data-act=nOpen]')].filter(x=>x!==card).slice(0,12);
+    others.forEach((el,i)=>el.animate([{opacity:.25,transform:'scale(.97)'},{opacity:1,transform:'none'}],{duration:320,delay:60+i*18,easing:ease,fill:'backwards'}));
+    const done=()=>{if(!g.isConnected)return;g.remove();card.style.opacity='';card.animate([{transform:'scale(.94)',boxShadow:'0 0 0 3px color-mix(in srgb,'+fc+' 55%,transparent)'},{transform:'scale(1.03)',offset:.5},{transform:'none',boxShadow:'0 0 0 0 transparent'}],{duration:420,easing:'cubic-bezier(.34,1.56,.64,1)'});NT.closing=false};
+    a.onfinish=done;setTimeout(done,D+400)},150)}
 function noteZoom(from,fc,src){if(calm()||!from||!from.width)return;const edw=document.querySelector('.n-editor');if(!edw)return;sfx('open');
   requestAnimationFrame(()=>{const to=edw.getBoundingClientRect();if(!to.width)return;
     const g=document.createElement('div');g.className='n-ghost';g.style.setProperty('--fc',fc||'var(--accent)');
@@ -2345,7 +2368,7 @@ document.addEventListener('click',e=>{
   else if(a==='nCopy'){const ed=document.getElementById('nEd');NT.menu=false;try{navigator.clipboard.writeText((ed&&ed.innerText)||'').then(()=>toast('Texto copiado'),()=>toast('No se pudo copiar'))}catch(_){toast('No se pudo copiar')}notesRefresh()}
   else if(a==='nSession'){NT.menu=false;const n=S.notes[NT.note];if(!n)return;if(NT.dirty)saveNote();openSheet('estudio');setTimeout(()=>{const t=document.querySelector('#sheet input[name=topic]'),ar=document.querySelector('#sheet input[name=area]');if(t)t.value=n.title||'';if(ar)ar.value=folderName(n.folder)},30)}
   else if(a==='nNew')newNote();
-  else if(a==='nBack'){if(NT.dirty)saveNote();if(NT.full==='note')setFull('');if(b.dataset.to==='list'){NT.note=null}setLevel(b.dataset.to);notesRefresh()}
+  else if(a==='nBack'){if(NT.closing)return;if(NT.dirty)saveNote();if(NT.full==='note')setFull('');if(b.dataset.to==='list'&&NT.note&&!calm()){noteZoomBack();return}if(b.dataset.to==='list'){NT.note=null}setLevel(b.dataset.to);notesRefresh()}
   else if(a==='nPin'){const n=S.notes[NT.note];if(n){if(NT.dirty)saveNote();put('notes',NT.note,{...S.notes[NT.note],pinned:!n.pinned});toast(n.pinned?'Nota desfijada':'Nota fijada arriba')}}
   else if(a==='nDel'){const k='note/'+NT.note;if(ui.armed===k){sfx('delete');ui.armed=null;NT.dirty=false;clearTimeout(NT.saveT);const id=NT.note;NT.note=null;setLevel('list');del('notes',id);toast('Nota borrada')}else{ui.armed=k;notesRefresh();clearTimeout(go._t);go._t=setTimeout(()=>{ui.armed=null;notesRefresh()},3000)}}
   else if(a==='nDelFolder'){const f=NT.folder,k='folder/'+f;if(!S.folders[f])return;if(ui.armed===k){sfx('delete');ui.armed=null;notesAll().filter(n=>n.folder===f).forEach(n=>put('notes',n.id,{...n,folder:''}));NT.folder='all';del('folders',f);toast('Carpeta borrada. Sus notas siguen en «Todas las notas»')}else{ui.armed=k;notesRefresh();clearTimeout(go._t);go._t=setTimeout(()=>{ui.armed=null;notesRefresh()},3000)}}
