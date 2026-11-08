@@ -38,7 +38,7 @@ declare
   wd    text[] := array['SU','MO','TU','WE','TH','FR','SA'];
   stamp text := to_char(now() at time zone 'utc', 'YYYYMMDD"T"HH24MISS"Z"');
   l     text[] := array['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JuinLoks//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',
-                        'X-WR-CALNAME:JuinLoks','REFRESH-INTERVAL;VALUE=DURATION:PT15M','X-PUBLISHED-TTL:PT15M'];
+                        'X-WR-CALNAME:JuinLoks','REFRESH-INTERVAL;VALUE=DURATION:PT1H','X-PUBLISHED-TTL:PT1H'];
 begin
   select user_id into uid from calendar_feeds where token = t;
   if uid is null or t is null or length(t) < 20 then
