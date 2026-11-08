@@ -869,6 +869,7 @@ a.btn{text-decoration:none}
 .ad-it[style*="--tc"]{background:color-mix(in srgb,var(--tc) 26%,transparent);box-shadow:inset 3px 0 0 var(--tc)}
 .ag-it{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:.8rem;padding:6px 10px;border-radius:9px;touch-action:pan-y}.ag-it .ic{width:12px;height:12px}
 .ad-it.done{opacity:.5;text-decoration:line-through}.ad-src{opacity:.35}
+.ad-it.over{box-shadow:inset 3px 0 0 var(--bad)}.ad-ov{font:600 .66rem var(--f-mono);color:var(--bad);margin-left:4px}
 .ad-fly{position:fixed;z-index:70;pointer-events:none;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 .82rem var(--f-body);box-shadow:0 18px 40px -12px rgba(0,0,0,.7);transform:rotate(-2deg) scale(1.04)}
 .ad-fly[style*="--tc"]{background:var(--tc);color:#fff}.ad-ft{font:600 .75rem var(--f-mono);opacity:.85}
 .cal-col.drop{background-color:color-mix(in srgb,var(--accent) 10%,transparent)}
@@ -1480,6 +1481,7 @@ const habitDays=h=>Array.isArray(h.days)&&h.days.length?h.days.map(Number):[0,1,
 const habitOn=(h,d)=>habitDays(h).includes(parse(d).getDay());
 function itemsOn(d){const out=[];
   vals('tasks').filter(r=>r.date===d).forEach(r=>out.push({k:'t',id:r.id,title:r.title,time:r.time||'',dur:+r.dur||60,done:!!r.done,imp:!!r.imp,tc:(ttype(r)||[])[2]||''}));
+  if(d===today())vals('tasks').filter(r=>!r.done&&r.date&&r.date<d).sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>out.push({k:'t',id:r.id,title:r.title,time:'',dur:+r.dur||60,done:false,imp:!!r.imp,over:r.date,tc:(ttype(r)||[])[2]||''}));
   habitsSorted().filter(h=>h.time&&habitOn(h,d)).forEach(h=>out.push({k:'h',id:h.id,title:h.name,time:h.time,dur:+h.dur||30,done:doneOn(d,h.id)}));
   return out}
 // columnas para eventos que se solapan
@@ -1507,7 +1509,7 @@ function calGrid(days,mini){const t=today();
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   return `<div class="cal${mini?' mini':''}" style="--n:${days.length}">
     <div class="cal-dh"><span></span>${cols.map(c=>{const x=parse(c.d);return `<button class="cal-dn${c.d===t?' today':''}" data-act="calDay" data-d="${c.d}"><span>${['dom','lun','mar','mié','jue','vie','sáb'][x.getDay()]}</span><b>${x.getDate()}</b></button>`}).join('')}</div>
-    <div class="cal-ad"><span class="cal-adl">todo el día</span>${cols.map(c=>`<div class="cal-adc">${c.untimed.map(i=>`<button class="ad-it${i.done?' done':''}" data-act="calEv" data-k="${i.k}" data-id="${esc(i.id)}" data-d="${c.d}"${i.k==='t'?' data-drag="1"':''}${i.tc?` style="--tc:${i.tc}"`:''}>${esc(i.title)}</button>`).join('')}</div>`).join('')}</div>
+    <div class="cal-ad"><span class="cal-adl">todo el día</span>${cols.map(c=>`<div class="cal-adc">${c.untimed.map(i=>`<button class="ad-it${i.done?' done':''}${i.over?' over':''}"${i.over?` title="Atrasada · ${shortDate(i.over)}"`:''} data-act="calEv" data-k="${i.k}" data-id="${esc(i.id)}" data-d="${c.d}"${i.k==='t'?' data-drag="1"':''}${i.tc?` style="--tc:${i.tc}"`:''}>${esc(i.title)}</button>`).join('')}</div>`).join('')}</div>
     <div class="cal-sc" id="calSc"><div class="cal-g" style="height:${24*CAL.H}px">
       <div class="cal-hours">${[...Array(24)].map((_,h)=>`<span style="top:${h*CAL.H}px">${h?pad(h)+':00':''}</span>`).join('')}</div>
       ${cols.map(c=>`<div class="cal-col${c.d===t?' today':''}" data-d="${c.d}">${c.d===t?`<span class="cal-now" style="top:${nowM/60*CAL.H}px"></span>`:''}${c.timed.map(ev=>evBlock(ev,c.d)).join('')}</div>`).join('')}
@@ -1520,7 +1522,7 @@ function dayAgenda(){const t=today(),n=new Date(),nowM=n.getHours()*60+n.getMinu
   const off=a*60,hrs=z-a,H=Math.max(26,Math.min(44,Math.round(380/hrs)));
   const un=itemsOn(t).filter(i=>i.k==='t'&&toMin(i.time)===null).sort((x,y)=>(x.done-y.done)||(y.imp-x.imp));
   return `<section class="panel agenda" aria-label="Tu día"><div class="hd"><h2>Tu día</h2><button class="btn sm ghost" data-act="openCal">${svg(IC.cal)}Calendario</button></div>
-  ${un.length?`<div class="ag-ad"><span class="ag-adl">Sin hora</span><div class="ag-adc">${un.map(i=>`<button class="ad-it ag-it${i.done?' done':''}" data-act="calEv" data-k="t" data-id="${esc(i.id)}" data-d="${t}" data-drag="1"${i.tc?` style="--tc:${i.tc}"`:''}>${i.done?svg(IC.check):''}${esc(i.title)}</button>`).join('')}</div></div>`:''}
+  ${un.length?`<div class="ag-ad"><span class="ag-adl">Sin hora</span><div class="ag-adc">${un.map(i=>`<button class="ad-it ag-it${i.done?' done':''}${i.over?' over':''}"${i.over?` title="Atrasada · ${shortDate(i.over)}"`:''} data-act="calEv" data-k="t" data-id="${esc(i.id)}" data-d="${t}" data-drag="1"${i.tc?` style="--tc:${i.tc}"`:''}>${i.done?svg(IC.check):''}${esc(i.title)}${i.over?`<span class="ad-ov">${shortDate(i.over)}</span>`:''}</button>`).join('')}</div></div>`:''}
   <div class="ag-g" style="height:${hrs*H}px">
     <div class="ag-hours">${[...Array(hrs+1)].map((_,i)=>i&&i<hrs?`<span style="top:${i*H}px">${pad(a+i)}:00</span>`:'').join('')}</div>
     <div class="cal-col ag-col" data-d="${t}" data-h="${H}" data-from="${off}" style="background-size:100% ${H}px">${nowM>=off&&nowM<=z*60?`<span class="cal-now" style="top:${(nowM-off)/60*H}px"></span>`:''}${evs.map(ev=>evBlock(ev,t,H,off)).join('')}</div>
