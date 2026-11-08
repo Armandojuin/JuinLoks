@@ -794,6 +794,11 @@ a.btn{text-decoration:none}
 .hero h2{margin:0 0 4px;font:700 clamp(1.3rem,5.4vw,1.6rem)/1.15 var(--f-display);letter-spacing:-.025em}
 .hero p{margin:0;color:var(--muted);font-size:.95rem}
 .hero-pc{font:700 1.9rem/1 var(--f-display);letter-spacing:-.04em;color:var(--ink)}.hero-pc small{font-size:.55em;color:var(--muted);margin-left:1px}
+.pbars{display:grid;gap:10px}.pbar-r{display:grid;gap:5px}
+.pbar-l{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;color:var(--muted)}.pbar-l b{font:600 .78rem var(--f-mono);color:var(--ink)}
+.daybar{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.daybar i{display:block;height:100%;margin-left:auto;border-radius:inherit;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 35%,transparent),color-mix(in srgb,var(--accent) 75%,transparent));transition:width .6s var(--e-out)}
+.daybar.low i{background:linear-gradient(90deg,#ff9f43,#ff6b4a);box-shadow:0 0 10px rgba(255,120,70,.5)}
 .dayprog{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}.dayprog i{display:block;height:100%;border-radius:inherit;background:var(--accent);box-shadow:0 0 12px var(--glow);transition:width .5s var(--e-out)}
 .next{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--surface2) 85%,transparent);border:1px solid var(--line)}
 .next.live{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 0 0 3px var(--glow-soft)}
@@ -1211,6 +1216,17 @@ function welcome(){return `<div class="panel welcome"><div class="hd"><h2>Bienve
 
 /* ---------- Hoy ---------- */
 const TKSVG='<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.6l3.9 3.9L18.2 8" pathLength="20"/></svg>';
+// tu día «despierto»: de la hora a la que te levantaste a tu hora habitual de dormir
+function dayWindow(){const t=today(),rec=Object.keys(S.sleep).sort().slice(-14).map(k=>S.sleep[k]).filter(x=>x&&x.bed&&x.wake);
+  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+  const wakeT=S.sleep[t]&&toMin(S.sleep[t].wake),wake=wakeT!=null?wakeT:(avg(rec.map(x=>toMin(x.wake)).filter(v=>v!=null))??420);
+  let bed=avg(rec.map(x=>{const m=toMin(x.bed);return m==null?null:(m<720?m+1440:m)}).filter(v=>v!=null))??1410;if(bed<=wake+60)bed=wake+16*60;
+  return {wake,bed,real:wakeT!=null}}
+function dayBar(){const n=new Date(),now=n.getHours()*60+n.getMinutes(),w=dayWindow(),len=w.bed-w.wake;
+  const m=now<w.wake-120?now+1440:now,left=Math.max(0,Math.min(len,w.bed-m)),pc=Math.round(left/len*100);
+  const hm2=x=>x>=60?`${Math.floor(x/60)} h${x%60?' '+x%60+' min':''}`:`${x} min`;
+  const txt=m<w.wake?'Aún no ha empezado tu día':left<=0?'Hora de descansar':`${hm2(left)} · ${pc} %`;
+  return `<div class="pbar-r"><div class="pbar-l"><span>Queda de día</span><b>${txt}</b></div><div class="daybar${pc<=15?' low':''}" role="progressbar" aria-valuenow="${pc}" aria-valuemin="0" aria-valuemax="100" aria-label="Queda de día: ${pc} por ciento" title="De ${fromMin(w.wake%1440)}${w.real?' (hoy te levantaste)':''} a ${fromMin(w.bed%1440)} (tu hora habitual de dormir)"><i style="width:${pc}%"></i></div></div>`}
 function hoyHero(hs,hd,tk){const n=new Date(),h=n.getHours(),nowM=h*60+n.getMinutes(),t=today();
   const hi=h<6?'Buenas noches':h<13?'Buenos días':h<21?'Buenas tardes':'Buenas noches';
   const ph=hs.length-hd,pt=tk.pend.length,tot=hs.length+tk.done.length+tk.pend.length,dn=hd+tk.done.length,pc=tot?Math.round(dn/tot*100):0;
@@ -1223,7 +1239,7 @@ function hoyHero(hs,hd,tk){const n=new Date(),h=n.getHours(),nowM=h*60+n.getMinu
     nx=`<div class="next${on?' live':''}">${btn}<div class="nx-b" data-act="calEv" data-k="${x.k}" data-id="${esc(x.id)}" data-d="${t}" role="button" tabindex="0"><span class="nx-k">${on?'Ahora':'Siguiente'}</span><span class="nx-t">${esc(x.title)}</span><span class="nx-s">${on?`hasta las ${fromMin(Math.min(1439,x.e))}`:`${inn} · ${x.time}`}</span></div>${its.length>1?`<span class="nx-more">+${its.length-1}</span>`:''}</div>`}
   else if(tot)nx=`<div class="next idle"><span class="nx-ic">${svg(IC.cal)}</span><div class="nx-b"><span class="nx-t">Nada más con hora hoy</span><span class="nx-s">Tienes el resto del día libre</span></div><button class="btn sm ghost" data-act="sheet" data-k="tarea">${svg(IC.plus)}Planear</button></div>`;
   return `<section class="hero" aria-label="Resumen de hoy"><div class="hero-hd"><div><h2>${hi}</h2><p>${sum}</p></div>${tot?`<span class="hero-pc">${pc}<small>%</small></span>`:''}</div>
-    ${tot?`<div class="dayprog" role="progressbar" aria-valuenow="${pc}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del día"><i style="width:${pc}%"></i></div>`:''}${nx}</section>`}
+    <div class="pbars">${tot?`<div class="pbar-r"><div class="pbar-l"><span>Hecho</span><b>${dn} de ${tot}</b></div><div class="dayprog" role="progressbar" aria-valuenow="${pc}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del día"><i style="width:${pc}%"></i></div></div>`:''}${dayBar()}</div>${nx}</section>`}
 V.resumen={form:()=>'',dyn(){
   const t=today(),hs=habitsSorted(),hd=hs.filter(h=>doneOn(t,h.id)).length;
   const tk=tasksToday(),tt=tk.done.length+tk.pend.length;
