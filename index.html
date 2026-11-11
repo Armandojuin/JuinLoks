@@ -875,6 +875,36 @@ a.btn{text-decoration:none}
 .ad-fly{position:fixed;z-index:70;pointer-events:none;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font:600 .82rem var(--f-body);box-shadow:0 18px 40px -12px rgba(0,0,0,.7);transform:rotate(-2deg) scale(1.04)}
 .ad-fly[style*="--tc"]{background:var(--tc);color:#fff}.ad-ft{font:600 .75rem var(--f-mono);opacity:.85}
 .cal-col.drop{background-color:color-mix(in srgb,var(--accent) 10%,transparent)}
+.bdg{display:none;position:absolute;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--bad);color:#fff;font:700 .62rem/17px var(--f-body);text-align:center;box-shadow:0 0 0 2px var(--surface);pointer-events:none;z-index:3}
+.bdg.on{display:block}
+/* arriba (ordenador): una sola cápsula con indicador relleno que se desliza */
+@media (min-width:900px){
+  nav.tabs{display:flex;width:max-content;max-width:100%;margin:22px auto 0;padding:5px;gap:2px;flex-wrap:nowrap;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 85%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 18px 40px -24px rgba(0,0,0,.9)}
+  nav.tabs button{display:inline-flex;align-items:center;gap:7px;border:0!important;background:transparent!important;box-shadow:none!important;padding:9px 16px;border-radius:999px;color:var(--muted);text-shadow:none!important;animation:none!important}
+  nav.tabs button .ic{width:17px;height:17px;transition:transform .3s var(--e-spring)}
+  nav.tabs button:hover{color:var(--ink);transform:none}nav.tabs button:hover .ic{transform:translateY(-1px) scale(1.08)}
+  nav.tabs button[aria-current="page"]{color:var(--on-accent)!important}
+  nav.tabs .nav-ind{z-index:0;border:0!important;background:var(--accent);box-shadow:0 8px 24px -8px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)!important}
+  nav.tabs .bdg{position:static;margin-left:1px;box-shadow:none}nav.tabs .bdg.on{display:inline-block}
+}
+:root[data-mode="light"] nav.tabs{box-shadow:0 1px 2px rgba(15,15,30,.05),0 14px 30px -20px rgba(15,15,30,.35)}
+/* abajo (móvil): barra flotante de cristal; la pestaña activa se expande con su nombre */
+@media (max-width:899px){
+  .bnav{display:flex!important;left:max(12px,env(safe-area-inset-left,0px))!important;right:calc(max(12px,env(safe-area-inset-right,0px)) + 72px)!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;padding:6px!important;gap:2px;border-radius:28px;border:1px solid color-mix(in srgb,var(--ink) 10%,transparent)!important;background:color-mix(in srgb,var(--surface) 72%,transparent)!important;backdrop-filter:blur(22px) saturate(1.6)!important;-webkit-backdrop-filter:blur(22px) saturate(1.6)!important;box-shadow:0 20px 44px -16px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.07);transition:transform .38s var(--e-out),opacity .3s}
+  .bnav button{flex:1 1 0;min-width:0;min-height:48px!important;flex-direction:row!important;gap:6px!important;border-radius:22px!important;color:var(--muted);font:600 .82rem var(--f-body)!important;transition:flex-grow .42s var(--e-out),background .3s,color .25s,box-shadow .3s!important;position:relative;overflow:visible}
+  .bnav button .ic{width:22px;height:22px;flex:none;transition:transform .35s var(--e-spring)}
+  .bnav button .bl{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--e-out),opacity .25s}
+  .bnav button.on{flex-grow:2.3;background:var(--accent);color:var(--on-accent)!important;box-shadow:0 10px 24px -10px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)}
+  .bnav button.on .ic{filter:none!important}
+  .bnav button.on .bl{max-width:6.5em;opacity:1}
+  .bnav button:active .ic{transform:scale(.86)}
+  .bnav .bdg{top:4px;left:calc(50% + 4px)}.bnav button.on .bdg{display:none}
+  .bnav .nav-ind{display:none}
+  .fab{right:max(12px,env(safe-area-inset-right,0px))!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;width:62px!important;height:62px!important;box-shadow:0 14px 30px -10px var(--glow),0 0 0 1px color-mix(in srgb,var(--ink) 10%,transparent);transition:transform .38s var(--e-out)!important}
+  body.nav-hide .bnav,body.nav-hide .fab{transform:translateY(calc(100% + 30px))}
+  .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}
+}
+:root[data-mode="light"] .bnav{box-shadow:0 18px 40px -16px rgba(15,15,30,.35),inset 0 1px 0 rgba(255,255,255,.6)!important}
 .aj-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:4px 0 0}
 @media (min-width:900px){body:not(.n-full) .notes{height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:520px;grid-template-rows:minmax(0,1fr)}body:not(.n-full) .notes .n-col{overflow-y:auto;min-height:0;overscroll-behavior:contain}}
 .st-go{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--glow-soft);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:transform .12s var(--e-out)}
@@ -995,13 +1025,13 @@ a.ring:hover{background:var(--glow-soft)}a.ring:active{transform:scale(.95)}a.ri
     <div class="hdr-r"><div class="hdr-top"><button class="thbtn" id="thbtn" data-act="themeCycle" aria-label="Cambiar entre modo claro y oscuro"></button><span class="brand mini"><svg class="lmark" aria-hidden="true" viewBox="10 10 90 80"><defs>  <linearGradient id="gH" x1="92" y1="28" x2="56" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 55%,#ffffff)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>  <mask id="mH" maskUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><path d="M55 47 L67 59 L92 32" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round" stroke-linejoin="miter"/></mask>  </defs>  <g transform="translate(0 0) scale(1)">    <path d="M54 14 H64 V58 A26 26 0 0 1 12 58 H30 A8 8 0 0 0 46 58 V22 A8 8 0 0 1 54 14 Z" style="fill:var(--ink)" mask="url(#mH)"/>    <path d="M55 47 L67 59 L92 32" fill="none" stroke="url(#gH)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>  </g></svg><span>Juin<b>Loks</b></span></span></div><div class="sync" id="sync"></div></div>
   </header>
   <nav class="tabs" id="tabs" aria-label="Secciones">
-    <button data-route="resumen">Hoy</button>
-    <button data-route="tareas">Tareas</button>
-    <button data-route="habitos">Hábitos</button>
-    <button data-route="dinero">Dinero</button>
-    <button data-route="sueno">Sueño</button>
-    <button data-route="conocimiento">Conocimiento</button>
-    <button data-route="ajustes">Ajustes</button>
+    <button data-route="resumen" data-ico="hoy"><span class="bl">Hoy</span></button>
+    <button data-route="tareas" data-ico="tareas"><span class="bl">Tareas</span><i class="bdg" data-b="tareas"></i></button>
+    <button data-route="habitos" data-ico="habitos"><span class="bl">Hábitos</span><i class="bdg" data-b="habitos"></i></button>
+    <button data-route="dinero" data-ico="dinero"><span class="bl">Dinero</span></button>
+    <button data-route="sueno" data-ico="moon"><span class="bl">Sueño</span></button>
+    <button data-route="conocimiento" data-ico="book"><span class="bl">Conocimiento</span></button>
+    <button data-route="ajustes" data-ico="gear"><span class="bl">Ajustes</span></button>
   </nav>
   <nav class="subnav" id="subnav" aria-label="Más secciones" hidden>
     <button data-route="sueno">Sueño</button>
@@ -1020,11 +1050,11 @@ a.ring:hover{background:var(--glow-soft)}a.ring:active{transform:scale(.95)}a.ri
   </main>
 </div>
 <nav class="bnav" id="bnav" aria-label="Secciones">
-  <button data-route="resumen" data-ico="hoy">Hoy</button>
-  <button data-route="tareas" data-ico="tareas">Tareas</button>
-  <button data-route="habitos" data-ico="habitos">Hábitos</button>
-  <button data-route="dinero" data-ico="dinero">Dinero</button>
-  <button data-route="more" data-ico="mas">Más</button>
+  <button data-route="resumen" data-ico="hoy"><span class="bl">Hoy</span></button>
+  <button data-route="tareas" data-ico="tareas"><span class="bl">Tareas</span><i class="bdg" data-b="tareas"></i></button>
+  <button data-route="habitos" data-ico="habitos"><span class="bl">Hábitos</span><i class="bdg" data-b="habitos"></i></button>
+  <button data-route="dinero" data-ico="dinero"><span class="bl">Dinero</span></button>
+  <button data-route="more" data-ico="mas"><span class="bl">Más</span></button>
 </nav>
 <button class="fab" data-act="sheet" data-k="menu" data-ico="plus" aria-label="Añadir"></button>
 <div class="sheet-bg" id="sheet" hidden><section class="sheet" role="dialog" aria-modal="true" aria-label="Añadir"><div class="grab" aria-hidden="true"></div><div id="sheetBody"></div></section></div>
@@ -2350,6 +2380,7 @@ IC.bell='<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0
 IC.phone='<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>';
 IC.dots='<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>';
 IC.copy='<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>';
+IC.gear='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
 IC.play='<path d="M8 5.5v13l10.5-6.5z"/>';
 IC.sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>';
 IC.moonS='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
@@ -2400,16 +2431,22 @@ function renderDyn(){
   ui.calDir=0;
   const ex=COLS.some(c=>Object.values(S[c]).some(v=>v&&v.ex));
   document.getElementById('exNotice').hidden=!ex;
+  navBadges();
 }
 function renderStatic(){const st=document.getElementById('static'),h=V[ui.route].form();st.innerHTML=h;st.hidden=!h;if(ui.route==='ajustes')fillSettings()}
 const ROUTES=['resumen','tareas','habitos','dinero','sueno','conocimiento','ajustes','semana'];
-function navInd(){['tabs','bnav'].forEach(id=>{const nav=document.getElementById(id);if(!nav||!nav.offsetParent&&getComputedStyle(nav).position!=='fixed')return;
+// globos con lo que te queda hoy
+function navBadges(){if(!user&&!Object.keys(S.tasks).length)return;const t=today();let nt=0,nh=0;try{nt=tasksToday().pend.length;nh=habitsSorted().filter(h=>habitOn(h,t)&&!doneOn(t,h.id)).length}catch(_){}
+  document.querySelectorAll('.bdg').forEach(b=>{const v=b.dataset.b==='tareas'?nt:nh,old=b.textContent;b.textContent=v>9?'9+':v?String(v):'';b.classList.toggle('on',v>0);if(old!==b.textContent&&v&&!calm())b.animate([{transform:'scale(.4)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:380,easing:'cubic-bezier(.34,1.56,.64,1)'})})}
+function navInd(){navBadges();['tabs'].forEach(id=>{const nav=document.getElementById(id);if(!nav||!nav.offsetParent&&getComputedStyle(nav).position!=='fixed')return;
   let ind=nav.querySelector('.nav-ind');if(!ind){ind=document.createElement('span');ind.className='nav-ind';ind.setAttribute('aria-hidden','true');nav.prepend(ind);nav.classList.add('has-ind')}
   const b=nav.querySelector('button.on,button[aria-current="page"]');if(!b){ind.style.opacity='0';return}
   const t=id==='bnav'?(b.querySelector('.ic')||b):b,nr=nav.getBoundingClientRect(),r=t.getBoundingClientRect();if(!r.width)return;
   const pw=id==='bnav'?Math.max(56,r.width+30):r.width,ph=id==='bnav'?r.height+12:r.height;
   Object.assign(ind.style,{opacity:'1',left:(r.left-nr.left+nav.scrollLeft+(r.width-pw)/2)+'px',top:(r.top-nr.top+(r.height-ph)/2)+'px',width:pw+'px',height:ph+'px'});
   if(!ind.dataset.ready)requestAnimationFrame(()=>ind.dataset.ready='1')})}
+(function(){let y0=0,acc=0;window.addEventListener('scroll',()=>{const y=window.scrollY,d=y-y0;y0=y;if(!window.matchMedia('(max-width:899px)').matches||Date.now()-(ui.enterT||0)<600){acc=0;return}acc=(acc>0)===(d>0)?acc+d:d;
+  if(y<80||acc<-24)document.body.classList.remove('nav-hide');else if(acc>36&&!ui.sheet)document.body.classList.add('nav-hide')},{passive:true})})();
 window.addEventListener('resize',()=>{clearTimeout(navInd._t);navInd._t=setTimeout(navInd,80)});
 try{document.fonts.ready.then(()=>navInd())}catch(_){}
 function go(r){
@@ -2423,7 +2460,7 @@ function go(r){
   document.querySelectorAll('#bnav [data-route]').forEach(b=>{const on=b.dataset.route===r||(b.dataset.route==='more'&&MORE.includes(r));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});
   const sn=document.getElementById('subnav');sn.hidden=!MORE.includes(r);sn.querySelectorAll('[data-route]').forEach(b=>b.setAttribute('aria-current',b.dataset.route===r?'page':'false'));
   if(ui.sheet)closeSheet();
-  ui.enterT=Date.now();ui.cscroll=null;
+  ui.enterT=Date.now();ui.cscroll=null;document.body.classList.remove('nav-hide');
   renderStatic();renderDyn();
   navInd();
   const mn=document.querySelector('main');if(mn&&!calm()){mn.style.setProperty('--dx',(r===prevR?0:dir*32)+'px');mn.classList.remove('jl-enter');void mn.offsetWidth;mn.classList.add('jl-enter');clearTimeout(go._e);go._e=setTimeout(()=>mn.classList.remove('jl-enter'),450)}
