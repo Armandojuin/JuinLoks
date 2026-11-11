@@ -706,9 +706,9 @@ body.n-full-note .n-tb{justify-content:center}
 .n-ghost::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fc)}
 .n-gt{display:block;padding:14px 18px;font:700 1.05rem var(--f-display);color:var(--ink);transform-origin:0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* ---------- bienvenida al abrir la app ---------- */
-.splash{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--bg);animation:jlSpOut .38s cubic-bezier(.4,0,.2,1) 1.05s forwards;cursor:pointer}
+.splash{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--bg);animation:jlSpOut .38s cubic-bezier(.4,0,.2,1) 1.5s forwards;cursor:pointer}
 .splash.skip{animation:jlSpOut .3s ease forwards}
-.splash-in{display:grid;justify-items:center;gap:20px;animation:jlSpZoom .38s cubic-bezier(.4,0,.2,1) 1.05s forwards}
+.splash-in{display:grid;justify-items:center;gap:20px;animation:jlSpZoom .38s cubic-bezier(.4,0,.2,1) 1.5s forwards}
 .splash.skip .splash-in{animation:jlSpZoom .3s ease forwards}
 .splash svg{width:min(44vw,200px);height:auto;overflow:visible;animation:jlSpGlow .7s ease .5s both}
 .sp-j{fill:var(--ink);transform-box:fill-box;transform-origin:50% 60%;animation:jlSpJ .45s cubic-bezier(.2,.9,.3,1.25) both}
@@ -716,6 +716,8 @@ body.n-full-note .n-tb{justify-content:center}
 .sp-word{display:flex;overflow:hidden;font:700 clamp(2.1rem,9vw,3rem)/1.15 var(--f-display);letter-spacing:-.045em;color:var(--ink)}
 .sp-word span,.sp-word b{display:inline-block;animation:jlSpWord .4s var(--e-out) .5s both}
 .sp-word b{color:var(--accent);animation-delay:.58s}
+.sp-tag{margin-top:-10px;font:500 clamp(1rem,4.4vw,1.25rem)/1.3 var(--f-body);color:var(--muted);letter-spacing:.01em;animation:jlSpTag .5s var(--e-out) .78s both}
+@keyframes jlSpTag{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
 @keyframes jlSpJ{from{opacity:0;transform:translateY(22px) scale(.82)}}
 @keyframes jlSpDraw{to{stroke-dashoffset:0}}
 @keyframes jlSpGlow{0%{filter:none}45%{filter:drop-shadow(0 0 26px var(--glow))}100%{filter:drop-shadow(0 0 10px var(--glow-soft))}}
@@ -724,7 +726,7 @@ body.n-full-note .n-tb{justify-content:center}
 @keyframes jlSpOut{to{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){
   .splash{animation:jlSpOut .4s ease .7s forwards}
-  .splash-in,.splash svg,.sp-j,.sp-word span,.sp-word b{animation:none}
+  .splash-in,.splash svg,.sp-j,.sp-word span,.sp-word b,.sp-tag{animation:none}
   .sp-chk{animation:none;stroke-dashoffset:0}
 }
 .svol{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.svol label{font-size:.9rem;font-weight:600}.svol input{flex:1;min-width:140px;accent-color:var(--accent);padding:0;border:0;background:transparent}
@@ -984,6 +986,7 @@ a.ring:hover{background:var(--glow-soft)}a.ring:active{transform:scale(.95)}a.ri
       <path class="sp-chk" d="M55 47 L67 59 L92 32" pathLength="100" fill="none" stroke="url(#gS)" stroke-width="14" stroke-linecap="round" stroke-linejoin="miter"/>
     </svg>
     <div class="sp-word"><span>Juin</span><b>Loks</b></div>
+    <div class="sp-tag">Tu vida, en orden.</div>
   </div>
 </div>
 <div class="wrap">
@@ -2675,7 +2678,7 @@ fromHash();
     if(mn&&!calm()){ui.enterT=Date.now();renderDyn();mn.classList.remove('jl-enter');void mn.offsetWidth;mn.classList.add('jl-enter');setTimeout(()=>mn.classList.remove('jl-enter'),750);requestAnimationFrame(animateEnter)}
     setTimeout(()=>sp.remove(),400)};
   sp.addEventListener('click',()=>{sp.classList.add('skip');finish()});
-  setTimeout(finish,calm()?600:1050)})();
+  setTimeout(finish,calm()?600:1500)})();
 connect();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
