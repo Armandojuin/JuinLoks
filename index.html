@@ -857,6 +857,10 @@ a.btn{text-decoration:none}
 .tt-sw.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}.tt-sw:active{transform:scale(.9)}
 .tt-any{background:conic-gradient(#f44,#fd4,#4f6,#4df,#46f,#d4f,#f44);overflow:hidden}.tt-any input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .tt-na{display:flex;justify-content:flex-end;gap:8px}
+.tt-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;width:100%}
+.tt-ic{height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:background .2s,color .2s,transform .12s}
+.tt-ic .ic{width:18px;height:18px}.tt-ic:hover{color:var(--ink)}.tt-ic.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}.tt-ic:active{transform:scale(.9)}
+.tt-row .tt-icons .tt-ic.on{background:var(--tc);border-color:var(--tc);color:#fff}
 .tt-man{display:grid;gap:2px}
 .tt-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}
 .tt-dot{width:36px;height:36px;border-radius:12px;border:0;display:grid;place-items:center;background:var(--tc);color:#fff;cursor:pointer;box-shadow:0 6px 16px -8px var(--tc)}.tt-dot .ic{width:17px;height:17px}
@@ -1347,14 +1351,27 @@ function ttSetColor(k,c){const cu=Array.isArray(S.config.ttypes)?S.config.ttypes
   if(cu.some(x=>x.k===k))put('config','main',{...S.config,ttypes:cu.map(x=>x.k===k?{...x,c}:x)});
   else{const cc={...(S.config.ttColors||{})};if(c)cc[k]=c;else delete cc[k];put('config','main',{...S.config,ttColors:cc})}
   sfx('tap');const sb=document.getElementById('sheetBody');if(ui.sheet==='ttmanage'&&sb)sb.innerHTML=SHEETS.ttmanage()}
+const TT_ICX={dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',plane:'<path d="M10.5 13.5L3 11l1.5-1.5 7 1 4-4.5a2 2 0 0 1 3 3l-4.5 4 1 7L13.5 21l-2.5-7.5z"/>',
+  gift:'<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5-1s5 1 5 1zm0 0c1.5-3 5-3.5 5-1s-5 1-5 1z"/>',paw:'<circle cx="7" cy="10" r="1.8"/><circle cx="17" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><path d="M12 12.5c-3 0-5 3-5 5 0 1.5 1.5 2.5 3 2 .7-.2 1.3-.5 2-.5s1.3.3 2 .5c1.5.5 3-.5 3-2 0-2-2-5-5-5z"/>',
+  coffee:'<path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2.5M12 3.5v2.5"/>',leaf:'<path d="M5 19C5 10 11 5 20 4c-1 9-6 15-15 15zM5 19l7-7"/>',
+  film:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M8 5v14M16 5v14M3.5 9.5H8M3.5 14.5H8M16 9.5h4.5M16 14.5h4.5"/>',game:'<rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7.5 10.5v4M5.5 12.5h4M15.5 11.5h.01M18 13.5h.01"/>',
+  people:'<circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/>',pill:'<rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-45 12 12)"/><path d="M9.2 9.2l5.6 5.6"/>',
+  car:'<path d="M5 15.5V12l2-5h10l2 5v3.5M3.5 12h17M6.5 18.5v-2.5M17.5 18.5v-2.5"/><rect x="3.5" y="12" width="17" height="4.5" rx="1.5"/>',bolt:'<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
+  flame:'<path d="M12 21c4 0 6.5-2.5 6.5-6 0-4-3.5-6-4.5-10-2 2-3 4-3 6-1-1-1.5-2-1.5-3C7 9.5 5.5 12 5.5 15c0 3.5 2.5 6 6.5 6z"/>',moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  music:'<path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',code:'<path d="M8.5 7l-5 5 5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.5 3.5 5.5 3.5 8.5s-1 6-3.5 8.5c-2.5-2.5-3.5-5.5-3.5-8.5s1-6 3.5-8.5z"/>',money:'<rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v.01M18 14.5v.01"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>'};
+const ttIcons=()=>{const o={};TT_BASE.forEach(([k,,,ic])=>o[k]=ic);o.tag=TT_TAG;Object.assign(o,TT_ICX);return o};
+const ttIconPick=(sel,act,k)=>`<div class="tt-icons">${Object.entries(ttIcons()).map(([n,ic])=>`<button type="button" class="tt-ic${n===sel?' on':''}" data-act="${act}" data-i="${n}"${k?` data-k="${esc(k)}"`:''} aria-label="Icono ${n}">${svg(ic)}</button>`).join('')}</div>`;
 function ttList(){const cc=S.config.ttColors||{},cu=Array.isArray(S.config.ttypes)?S.config.ttypes:[];
-  const key=JSON.stringify([cc,cu]);if(ttList._k===key)return ttList._v;
-  ttList._k=key;ttList._v=[...TT_BASE.map(([k,l,c,ic])=>[k,l,cc[k]||c,ic,false]),...cu.filter(x=>x&&x.k&&x.l).map(x=>[x.k,x.l,x.c||'#8c8c8c',TT_TAG,true])];return ttList._v}
+  const key=JSON.stringify([cc,cu,S.config.ttIcons||{}]);if(ttList._k===key+JSON.stringify(S.config.ttIcons||{}))return ttList._v;
+  const ci=S.config.ttIcons||{},I=ttIcons();ttList._k=key+JSON.stringify(ci);ttList._v=[...TT_BASE.map(([k,l,c,ic])=>[k,l,cc[k]||c,I[ci[k]]||ic,false,ci[k]||k]),...cu.filter(x=>x&&x.k&&x.l).map(x=>[x.k,x.l,x.c||'#8c8c8c',I[x.i]||TT_TAG,true,x.i||'tag'])];return ttList._v}
 const ttype=r=>r&&r.type?ttList().find(x=>x[0]===r.type)||null:null;
 const ttPill=(t,cls='')=>t?`<span class="pill tt${cls}" style="--tc:${t[2]}">${svg(t[3])}${esc(t[1])}</span>`:'';
 const ttChips=(sel,name='type')=>`<div class="chips tt-chips" role="radiogroup" aria-label="Tipo"><label class="chip"><input type="radio" name="${name}" value=""${sel?'':' checked'}><span>Ninguno</span></label>${ttList().filter(x=>x[0]!=='otros'||sel==='otros').map(([k,l,c,ic])=>ttChip(k,l,c,ic,sel===k,name)).join('')}<button type="button" class="chip tt-add" data-act="ttNew">${svg(IC.plus)}Otra…</button></div>
   <div class="tt-new" hidden><input class="tt-nn" maxlength="24" placeholder="Nombre de la etiqueta (p. ej. Gimnasio)" aria-label="Nombre de la etiqueta" autocomplete="off">
     <div class="tt-pal">${TT_PAL.map((c,i)=>`<button type="button" class="tt-sw${i===7?' on':''}" style="background:${c}" data-act="ttPick" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}<label class="tt-sw tt-any" title="Otro color"><input type="color" class="tt-cc" value="#ff5a4f" aria-label="Otro color"></label></div>
+    <div class="lbl" style="margin:2px 0 -2px">Icono</div>${ttIconPick('tag','ttPickI')}
     <div class="tt-na"><button type="button" class="btn sm ghost" data-act="ttCancel">Cancelar</button><button type="button" class="btn sm" data-act="ttCreate">Crear etiqueta</button></div></div>`;
 const ttChip=(k,l,c,ic,on,name='type')=>`<label class="chip tt-c" style="--tc:${c}"><input type="radio" name="${name}" value="${esc(k)}"${on?' checked':''}><span>${svg(ic)}${esc(l)}</span></label>`;
 const CATIC={Comida:'<path d="M3 4h2l2 11h11l2-8H6M9 19.5h.01M17 19.5h.01"/>',Vivienda:'<path d="M3 11l9-7 9 7M5 10v10h14V10"/>',
@@ -1947,13 +1964,13 @@ const SHEETS={
     <button class="btn big" type="submit">Guardar cambios</button>
     <div class="sh-btns"><button type="button" class="btn ghost" data-act="lDel">Borrar</button></div></form>`},
   ttmanage:()=>`<div class="sh-hd"><h2>Etiquetas de tareas</h2>${closeBtn()}</div>
-    <p class="muted" style="margin:0;font-size:.88rem">Toca el color de una etiqueta para cambiarlo. Las tuyas también se pueden renombrar o borrar.</p>
+    <p class="muted" style="margin:0;font-size:.88rem">Toca el icono de una etiqueta para cambiar su color y su icono. Las tuyas también se pueden renombrar o borrar.</p>
     <div class="tt-man">${ttList().map(([k,l,c,ic,custom])=>{const n=vals('tasks').filter(r=>r.type===k).length;return `<div class="tt-row${ui.ttOpen===k?' open':''}" style="--tc:${c}">
       <button class="tt-dot" data-act="ttOpen" data-k="${esc(k)}" aria-label="Cambiar color de ${esc(l)}" aria-expanded="${ui.ttOpen===k}">${svg(ic)}</button>
       ${custom?`<input class="tt-name" data-ttk="${esc(k)}" value="${esc(l)}" maxlength="24" aria-label="Nombre">`:`<span class="tt-name">${esc(l)}</span>`}
       <span class="muted tt-n">${n?n+(n===1?' tarea':' tareas'):''}</span>
       ${custom?`<button class="n-ic${ui.armed==='tt/'+k?' armed':''}" data-act="ttDel" data-k="${esc(k)}" aria-label="Borrar ${esc(l)}">${ui.armed==='tt/'+k?'<span style="font-size:.8rem;font-weight:600">¿Borrar?</span>':svg(IC.trash)}</button>`:''}
-      ${ui.ttOpen===k?`<div class="tt-pal full">${TT_PAL.map(pc=>`<button type="button" class="tt-sw${pc===c?' on':''}" style="background:${pc}" data-act="ttColor" data-k="${esc(k)}" data-c="${pc}" aria-label="Color ${pc}"></button>`).join('')}<label class="tt-sw tt-any" title="Otro color"><input type="color" data-ttc="${esc(k)}" value="${c}" aria-label="Otro color"></label>${!custom&&(S.config.ttColors||{})[k]?`<button type="button" class="btn sm ghost" data-act="ttReset" data-k="${esc(k)}">Original</button>`:''}</div>`:''}
+      ${ui.ttOpen===k?`<div class="tt-pal full">${TT_PAL.map(pc=>`<button type="button" class="tt-sw${pc===c?' on':''}" style="background:${pc}" data-act="ttColor" data-k="${esc(k)}" data-c="${pc}" aria-label="Color ${pc}"></button>`).join('')}<label class="tt-sw tt-any" title="Otro color"><input type="color" data-ttc="${esc(k)}" value="${c}" aria-label="Otro color"></label>${!custom&&((S.config.ttColors||{})[k]||(S.config.ttIcons||{})[k])?`<button type="button" class="btn sm ghost" data-act="ttReset" data-k="${esc(k)}">Original</button>`:''}</div><div class="tt-pal full">${ttIconPick(ttList().find(x=>x[0]===k)[5],'ttIcon',k)}</div>`:''}
     </div>`}).join('')}</div>
     <div class="tt-addrow"><input class="tt-nn" id="ttNewName" maxlength="24" placeholder="Nueva etiqueta…" aria-label="Nueva etiqueta" autocomplete="off"><button class="btn sm" data-act="ttAdd">${svg(IC.plus)}Añadir</button></div>`,
   budget:()=>`<div class="sh-hd"><h2>Presupuesto mensual</h2>${closeBtn()}</div>
@@ -2597,13 +2614,16 @@ document.addEventListener('click',e=>{
   else if(a==='ttPick'){const w=b.closest('.tt-pal');w.querySelectorAll('.tt-sw').forEach(x=>x.classList.toggle('on',x===b))}
   else if(a==='ttCreate'){const w=b.closest('.tt-new'),nm=(w.querySelector('.tt-nn').value||'').trim();if(!nm){toast('Escribe un nombre');w.querySelector('.tt-nn').focus();return}
     if(ttList().some(x=>x[1].toLowerCase()===nm.toLowerCase())){toast('Ya tienes una etiqueta con ese nombre');return}
-    const on=w.querySelector('.tt-sw.on'),c=on&&on.dataset.c?on.dataset.c:(w.querySelector('.tt-cc')||{}).value||'#8c8c8c',k='c'+uid().slice(0,8);
-    put('config','main',{...S.config,ttypes:[...(Array.isArray(S.config.ttypes)?S.config.ttypes:[]),{k,l:nm.slice(0,24),c}]});sfx('success');
+    const on=w.querySelector('.tt-sw.on'),c=on&&on.dataset.c?on.dataset.c:(w.querySelector('.tt-cc')||{}).value||'#8c8c8c',k='c'+uid().slice(0,8),ik=(w.querySelector('.tt-ic.on')||{dataset:{}}).dataset.i||'tag';
+    put('config','main',{...S.config,ttypes:[...(Array.isArray(S.config.ttypes)?S.config.ttypes:[]),{k,l:nm.slice(0,24),c,i:ik}]});sfx('success');
     const box=w.previousElementSibling&&w.previousElementSibling.classList.contains('tt-chips')?w.previousElementSibling:document.querySelector('#sheetBody .tt-chips');
-    if(box){const t=document.createElement('template');t.innerHTML=ttChip(k,nm,c,TT_TAG,true);box.insertBefore(t.content.firstChild,box.querySelector('.tt-add'))}
+    if(box){const t=document.createElement('template');t.innerHTML=ttChip(k,nm,c,ttIcons()[ik]||TT_TAG,true);box.insertBefore(t.content.firstChild,box.querySelector('.tt-add'))}
     w.querySelector('.tt-nn').value='';w.hidden=true;toast('Etiqueta «'+nm+'» creada')}
+  else if(a==='ttPickI'){b.closest('.tt-icons').querySelectorAll('.tt-ic').forEach(x=>x.classList.toggle('on',x===b))}
+  else if(a==='ttIcon'){const k=b.dataset.k,i=b.dataset.i,cu=Array.isArray(S.config.ttypes)?S.config.ttypes:[];if(cu.some(x=>x.k===k))put('config','main',{...S.config,ttypes:cu.map(x=>x.k===k?{...x,i}:x)});else{const ci={...(S.config.ttIcons||{})};if(i===k)delete ci[k];else ci[k]=i;put('config','main',{...S.config,ttIcons:ci})}sfx('tap');document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
   else if(a==='ttOpen'){ui.ttOpen=ui.ttOpen===b.dataset.k?null:b.dataset.k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
-  else if(a==='ttColor'||a==='ttReset'){ttSetColor(b.dataset.k,a==='ttReset'?null:b.dataset.c)}
+  else if(a==='ttColor'){ttSetColor(b.dataset.k,b.dataset.c)}
+  else if(a==='ttReset'){const ci={...(S.config.ttIcons||{})};delete ci[b.dataset.k];S.config={...S.config,ttIcons:ci};ttSetColor(b.dataset.k,null)}
   else if(a==='ttDel'){const k=b.dataset.k;if(ui.armed==='tt/'+k){ui.armed=null;sfx('delete');put('config','main',{...S.config,ttypes:(S.config.ttypes||[]).filter(x=>x.k!==k)});vals('tasks').filter(r=>r.type===k).forEach(r=>put('tasks',r.id,{...S.tasks[r.id],type:''}));if(ui.ttype===k)ui.ttype='';toast('Etiqueta borrada')}else ui.armed='tt/'+k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
   else if(a==='ttAdd'){const i=document.getElementById('ttNewName'),nm=(i&&i.value||'').trim();if(!nm){toast('Escribe un nombre');return}if(ttList().some(x=>x[1].toLowerCase()===nm.toLowerCase())){toast('Ya tienes una etiqueta con ese nombre');return}
     const used=new Set(ttList().map(x=>x[2])),c=TT_PAL.find(x=>!used.has(x))||TT_PAL[0],k='c'+uid().slice(0,8);put('config','main',{...S.config,ttypes:[...(Array.isArray(S.config.ttypes)?S.config.ttypes:[]),{k,l:nm.slice(0,24),c}]});sfx('success');ui.ttOpen=k;document.getElementById('sheetBody').innerHTML=SHEETS.ttmanage()}
